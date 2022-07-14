@@ -13,7 +13,8 @@ services:
     build:
       context: ./services/${service0_name}
       dockerfile: Dockerfile
-    image: ${services_namespace}_${service0_name}
+    image: ${services_namespace}_${service0_name}:v1
+    container_name: ${services_namespace}_${service0_name}
     expose:
       - "80"
     environment:
@@ -25,6 +26,7 @@ services:
       context: ./services/${service1_name}
       dockerfile: Dockerfile
     image: ${services_namespace}_${service1_name}:v1
+    container_name: ${services_namespace}_${service1_name}
     expose:
       - "80"
     environment:
