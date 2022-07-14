@@ -1,24 +1,37 @@
-# 使用nginx-proxy在同一端口多开服务
+# VerilogOjServices
 
-- [nginx-proxy](https://github.com/nginx-proxy/nginx-proxy)
+- [nginx-proxy Documentation](https://github.com/nginx-proxy/nginx-proxy)
 
-## 部署
+## 服务部署
+
+### 初次部署
 
 ```sh
+git clone git@git.tsinghua.edu.cn:yang-xj19/verilogojservices.git && cd verilogojservices
 sudo docker compose up --detach --build
 ```
 
-或
+### 更新服务
 
 ```sh
-sudo docker compose down && git pull && sudo docker compose up --detach --build
+sudo docker compose down
+git pull && sudo docker compose up --detach --build
 ```
 
 ## 成功部署
 
+在服务器执行
+
 ```sh
-curl -H "Host: service0" 166.111.223.67:1234
-curl -H "Host: service1" 166.111.223.67:1234
+curl -H "Host: verilogojservices.service0_name" localhost:1234
+curl -H "Host: verilogojservices.service1_name" localhost:1234
 ```
 
-可以看到实现了通过同一个端口1234访问两个FastAPI服务service0和service1
+或在本地执行
+
+```sh
+curl -H "Host: verilogojservices.service0_name" 166.111.223.67:1234
+curl -H "Host: verilogojservices.service1_name" 166.111.223.67:1234
+```
+
+即可得到服务返回的结果
