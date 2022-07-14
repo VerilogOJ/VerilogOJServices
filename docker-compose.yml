@@ -1,0 +1,32 @@
+version: "2"
+name: "MultipleServicesOnSinglePort"
+
+services:
+  nginx-proxy:
+    image: nginxproxy/nginx-proxy
+    ports:
+      - "1234:80"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+
+  service0:
+    build:
+      context: ./services/service0
+      dockerfile: Dockerfile
+    image: service0:v1
+    expose:
+      - "80"
+    environment:
+      - VIRTUAL_HOST=service0
+      - VIRTUAL_PORT=80
+
+  service1:
+    build:
+      context: ./services/service1
+      dockerfile: Dockerfile
+    image: service1:v1
+    expose:
+      - "80"
+    environment:
+      - VIRTUAL_HOST=service1
+      - VIRTUAL_PORT=80
