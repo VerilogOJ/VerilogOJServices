@@ -4,8 +4,10 @@ name: "VerilogOJServices"
 services:
   nginx-proxy:
     image: nginxproxy/nginx-proxy
+    container_name: ${services_namespace}_nginxproxy
+
     ports:
-      - "1234:80"
+      - "${host_port}:80"
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
 
@@ -15,6 +17,7 @@ services:
       dockerfile: Dockerfile
     image: ${services_namespace}_${service0_name}:v1
     container_name: ${services_namespace}_${service0_name}
+
     expose:
       - "80"
     environment:

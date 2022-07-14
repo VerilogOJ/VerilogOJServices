@@ -2,9 +2,19 @@
 
 - [nginx-proxy](https://github.com/nginx-proxy/nginx-proxy)
 
+## 部署
+
 ```sh
-docker-compose up --detach --build
+sudo docker compose up --detach --build
 ```
+
+或
+
+```sh
+sudo docker compose down && git pull && sudo docker compose up --detach --build
+```
+
+## 成功部署
 
 ```sh
 curl -H "Host: service0" 166.111.223.67:1234
