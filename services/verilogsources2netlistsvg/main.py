@@ -29,7 +29,7 @@ def convert_verilog_sources_to_netlist_svg(
     # [步骤]
     # 使用yosys 解析verilog看其中是否有语法错误 生成json网表
     # 使用netlistsvg生成svg
-    log = datetime.now().strftime("%H:%M:%S") + "开始处理"  # TODO 添加日期
+    log = datetime.now().strftime("%H:%M:%S") + " 开始处理"  # TODO 添加日期
 
     def program_exists(program_name: str) -> Union[str, None]:
         """Check whether `name` is on PATH and marked as executable."""

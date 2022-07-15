@@ -10,10 +10,15 @@ print("[request started]")
 response_origin = requests.put(url=url, data=json.dumps(request_data))
 print("[request ended]")
 print(f"[status_code] {response_origin.status_code}")
+response = json.loads(response_origin.content)
+
 if response_origin.status_code == 200:
-    response = json.loads(response_origin.content)
-    print(f"[successed] {json.dumps(response, ensure_ascii=False, indent=2)}")
+    # print(f"[successed] {json.dumps(response, ensure_ascii=False, indent=2)}")
+    print(f"[successed]")
+    print(f'[log] {response["log"]}')
     with open("./netlist.svg", "w") as f:
         f.write(response["netlist_svg"])
 else:
-    print(f"[failed] {response_origin.content}")
+    print(f"[failed]")
+    print(f'[log] {response["log"]}')
+    print(f'[error] {response["error"]}')

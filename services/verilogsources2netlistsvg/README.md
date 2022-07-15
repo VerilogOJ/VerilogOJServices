@@ -28,11 +28,21 @@ python3 inverter_test.py
 [request started]
 [request ended]
 [status_code] 200
-[successed] {
-  "log": "16:39:15开始处理",
-  "error": null,
-  "netlist_svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:s=\"https://github.com/nturley/netlistsvg\" width=\"184\" height=\"54\">\n  <style>svg {\n    stroke:#000;\n    fill:none;\n  }\n  text {\n    fill:#000;\n    stroke:none;\n    font-size:10px;\n    font-weight: bold;\n    font-family: \"Courier New\", monospace;\n  }\n  .nodelabel {\n    text-anchor: middle;\n  }\n  .inputPortLabel {\n    text-anchor: end;\n  }\n  .splitjoinBody {\n    fill:#000;\n  }</style>\n  <g s:type=\"not\" transform=\"translate(77,22)\" s:width=\"30\" s:height=\"20\" id=\"cell_$auto$simplemap.cc:38:simplemap_not$75\">\n    <s:alias val=\"$_NOT_\"/>\n    <s:alias val=\"$not\"/>\n    <s:alias val=\"$logic_not\"/>\n    <path d=\"M0,0 L0,20 L20,10 Z\" class=\"cell_$auto$simplemap.cc:38:simplemap_not$75\"/>\n    <circle cx=\"23\" cy=\"10\" r=\"3\" class=\"cell_$auto$simplemap.cc:38:simplemap_not$75\"/>\n    <g s:x=\"0\" s:y=\"10\" s:pid=\"A\"/>\n    <g s:x=\"25\" s:y=\"10\" s:pid=\"Y\"/>\n  </g>\n  <g s:type=\"inputExt\" transform=\"translate(12,22)\" s:width=\"30\" s:height=\"20\" id=\"cell_in\">\n    <text x=\"15\" y=\"-4\" class=\"nodelabel cell_in\" s:attribute=\"ref\">in</text>\n    <s:alias val=\"$_inputExt_\"/>\n    <path d=\"M0,0 L0,20 L15,20 L30,10 L15,0 Z\" class=\"cell_in\"/>\n    <g s:x=\"28\" s:y=\"10\" s:pid=\"Y\"/>\n  </g>\n  <g s:type=\"outputExt\" transform=\"translate(142,22)\" s:width=\"30\" s:height=\"20\" id=\"cell_out\">\n    <text x=\"15\" y=\"-4\" class=\"nodelabel cell_out\" s:attribute=\"ref\">out</text>\n    <s:alias val=\"$_outputExt_\"/>\n    <path d=\"M30,0 L30,20 L15,20 L0,10 L15,0 Z\" class=\"cell_out\"/>\n    <g s:x=\"0\" s:y=\"10\" s:pid=\"A\"/>\n  </g>\n  <line x1=\"40\" x2=\"77\" y1=\"32\" y2=\"32\" class=\"net_2\"/>\n  <line x1=\"102\" x2=\"142\" y1=\"32\" y2=\"32\" class=\"net_3\"/>\n</svg>\n"
-}
+[successed]
+[log] 16:54:38 开始处理
+ /----------------------------------------------------------------------------\
+ |                                                                            |
+ |  yosys -- Yosys Open SYnthesis Suite                                       |
+
+......
+
+7.9. Finished OPT passes. (There is nothing left to do.)
+
+8. Executing JSON backend.
+
+End of script. Logfile hash: 58c97783f0, CPU: user 0.03s system 0.01s
+Yosys 0.13 (git sha1 UNKNOWN, clang 13.0.0 -fPIC -Os)
+Time spent: 46% 3x read_verilog (0 sec), 17% 6x opt_expr (0 sec), ...
 ```
 
 ## 部署
