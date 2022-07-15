@@ -1,0 +1,57 @@
+{
+  "creator": "Yosys 0.13 (git sha1 UNKNOWN, clang 13.0.0 -fPIC -Os)",
+  "modules": {
+    "top": {
+      "attributes": {
+        "hdlname": "\\top",
+        "top": "00000000000000000000000000000001",
+        "src": "./temp/verilog_sources/0.v:1.1-6.10"
+      },
+      "ports": {
+        "in": {
+          "direction": "input",
+          "bits": [ 2 ]
+        },
+        "out": {
+          "direction": "output",
+          "bits": [ 3 ]
+        }
+      },
+      "cells": {
+        "$auto$simplemap.cc:38:simplemap_not$75": {
+          "hide_name": 1,
+          "type": "$_NOT_",
+          "parameters": {
+          },
+          "attributes": {
+            "src": "./temp/verilog_sources/0.v:5.18-5.21"
+          },
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 2 ],
+            "Y": [ 3 ]
+          }
+        }
+      },
+      "netnames": {
+        "in": {
+          "hide_name": 0,
+          "bits": [ 2 ],
+          "attributes": {
+            "src": "./temp/verilog_sources/0.v:2.11-2.13"
+          }
+        },
+        "out": {
+          "hide_name": 0,
+          "bits": [ 3 ],
+          "attributes": {
+            "src": "./temp/verilog_sources/0.v:3.12-3.15"
+          }
+        }
+      }
+    }
+  }
+}
