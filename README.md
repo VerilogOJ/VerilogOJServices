@@ -4,9 +4,10 @@
 
 ## 服务部署
 
-按需修改`.env`中的环境变量
 
 ### 初次部署
+
+按需修改`.env`中的环境变量
 
 ```sh
 git clone git@git.tsinghua.edu.cn:yang-xj19/verilogojservices.git && cd verilogojservices
@@ -22,18 +23,13 @@ git pull && sudo docker compose up --detach --build
 
 ## 成功部署
 
-在服务器执行
+服务器上执行（或将`localhost`改为服务器ip后在本地执行）
+
+TODO 更新 如何在浏览器访问到有host的docs/文件夹
 
 ```sh
-curl -H "Host: verilogojservices.service0_name" localhost:1234
-curl -H "Host: verilogojservices.service1_name" localhost:1234
-```
-
-或在本地执行
-
-```sh
-curl -H "Host: verilogojservices.service0_name" 166.111.223.67:1234
-curl -H "Host: verilogojservices.service1_name" 166.111.223.67:1234
+$ curl -H "Host: verilogojservices.service0" localhost:1234
+curl -H "Host: verilogojservices.verilogsources2netlistsvg" localhost:1234
 ```
 
 即可得到服务返回的结果

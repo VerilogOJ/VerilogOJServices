@@ -83,9 +83,8 @@ def convert_verilog_sources_to_netlist_svg(
         capture_output=True,
         shell=True,
     )  # https://docs.python.org/3/library/subprocess.html#subprocess.run
+    log += completed_yosys.stdout.decode("utf-8")
     if completed_yosys.returncode != 0:
-        if completed_yosys.stdout != None:
-            log += completed_yosys.stdout.decode("utf-8")
         return ServiceResponse(
             log=log,
             error=f"run yosys failed {completed_yosys.stderr.decode('utf-8') }",
@@ -98,8 +97,8 @@ def convert_verilog_sources_to_netlist_svg(
         ["netlistsvg", netlist_json_path, "-o", netlist_svg_path],
         capture_output=True,
     )
+    log += completed_netlistsvg.stdout.decode("utf-8")
     if completed_netlistsvg.returncode != 0:
-        log += completed_netlistsvg.stdout.decode("utf-8")
         return ServiceResponse(
             log=log,
             error=f"run netlistsvg failed {completed_netlistsvg.stderr.decode('utf-8')}",
