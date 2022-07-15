@@ -8,9 +8,9 @@ WORKDIR /app
 COPY . .
 
 RUN apt-get update && apt-get install -y \
-    yosys \
-    python3 python3-pip \
-    nodejs npm && \ 
+        yosys \
+        python3 python3-pip \
+        nodejs npm && \ 
     pip install --no-cache-dir --upgrade -r requirements.txt \ 
     npm install --global netlistsvg
 
