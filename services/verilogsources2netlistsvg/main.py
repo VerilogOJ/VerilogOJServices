@@ -26,10 +26,9 @@ def convert_verilog_sources_to_netlist_svg(
     service_request: ServiceRequest,
 ) -> ServiceResponse:
     print(f"start with request {service_request}")
-    # [步骤]
-    # 使用yosys 解析verilog看其中是否有语法错误 生成json网表
-    # 使用netlistsvg生成svg
-    log = datetime.now().strftime("%H:%M:%S") + " 开始处理"  # TODO 添加日期
+    log = "开始处理" + datetime.now().strftime("%Y/%m/%d, %H:%M:%S")
+
+    # [判断宿主机程序存在]
 
     def program_exists(program_name: str) -> Union[str, None]:
         """Check whether `name` is on PATH and marked as executable."""
@@ -37,7 +36,6 @@ def convert_verilog_sources_to_netlist_svg(
 
         return which(program_name) is not None
 
-    # [判断宿主机程序存在]
     if not program_exists("yosys"):
         response = ServiceResponse(
             log=log, error="yosys not installed", netlist_svg=None
@@ -79,7 +77,7 @@ def convert_verilog_sources_to_netlist_svg(
 
     # [运行yosys脚本]
     completed_yosys = subprocess.run(
-        [f"yosys {yosys_script_path}"], # 注意这里块不能分开写 否则yosys会进入交互模式
+        [f"yosys {yosys_script_path}"],  # 注意这里块不能分开写 否则yosys会进入交互模式
         capture_output=True,
         shell=True,
     )  # https://docs.python.org/3/library/subprocess.html#subprocess.run
