@@ -1,10 +1,9 @@
-from http.client import HTTPException
 from typing import Union, List
 import subprocess
 import os
 from datetime import datetime
 
-from fastapi import FastAPI, Query, Body
+from fastapi import FastAPI, Query, Body, HTTPException
 from pydantic import BaseModel
 
 
