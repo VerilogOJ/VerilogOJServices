@@ -1,2 +1,11 @@
+# Python
 __pycache__/
+.pytest_cache/
+
+# Project
+temp/
+netlist.svg
+
+# My
 playgrounds/
+temp/

@@ -27,7 +27,7 @@ class ServiceError(BaseModel):
     log: str = Body(title="过程日志")
 
 
-@app.put(
+@app.post(
     "/",
     # https://fastapi.tiangolo.com/advanced/additional-responses/
     responses={

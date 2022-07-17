@@ -18,32 +18,24 @@ uvicorn main:app --reload
 ### 测试
 
 ```sh
-cd test
-python3 inverter_test.py
+pip3 install pytest # or conda install pytest
+pytest
 ```
 
-尝试发起服务 如果服务没问题 应该会输出下面的结果 并在`test/`文件夹内保存`netlist.svg`文件 用浏览器打开即可看到反相器的组合逻辑电路
-
 ```
-[request started]
-[request ended]
-[status_code] 200
-[successed]
-[log] 16:54:38 开始处理
- /----------------------------------------------------------------------------\
- |                                                                            |
- |  yosys -- Yosys Open SYnthesis Suite                                       |
+============ test session starts =============
+platform darwin -- Python 3.9.5, pytest-7.1.2, pluggy-1.0.0
+rootdir: /Users/yangxijie/Downloads/INTERNSHIP/VerilogOJ/PROJECT/MAIN/VerilogOJServices/services/verilogsources2netlistsvg
+plugins: anyio-3.6.1
+collected 1 item                             
 
-......
+test_main.py .                         [100%]
 
-7.9. Finished OPT passes. (There is nothing left to do.)
-
-8. Executing JSON backend.
-
-End of script. Logfile hash: 58c97783f0, CPU: user 0.03s system 0.01s
-Yosys 0.13 (git sha1 UNKNOWN, clang 13.0.0 -fPIC -Os)
-Time spent: 46% 3x read_verilog (0 sec), 17% 6x opt_expr (0 sec), ...
+============= 1 passed in 0.73s ==============
 ```
+
+- 注：项目没有`__init__.py`会使得`pytest`报错。
+- 参考：https://fastapi.tiangolo.com/tutorial/testing/?h=test
 
 ## 部署
 
