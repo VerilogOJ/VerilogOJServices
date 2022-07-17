@@ -56,18 +56,18 @@ def convert_verilog_sources_to_netlist_svg(service_request: ServiceRequest):
             detail=ServiceError(error="yosys not installed", log=log),
         )
     if not program_exists("netlistsvg"):
-        raise JsonResponse(
-            status_code=400,
-            content=ServiceError(error="netlistsvg not installed", log=log),
+        raise HTTPException(
+            status_code=404,
+            detail=ServiceError(error="netlistsvg not installed", log=log),
         )
 
     # [保存用户上传的verilog源文件]
     base_path = "./temp/"
     verilog_sources_folder = "verilog_sources/"
     if service_request.verilog_sources.count == 0:
-        raise JsonResponse(
+        raise HTTPException(
             status_code=400,
-            content=ServiceError(error="no verilog sources provided", log=log),
+            detail=ServiceError(error="no verilog sources provided", log=log),
         )
     verilog_sources_path = []
     for i, verilog_source in enumerate(service_request.verilog_sources):
@@ -98,9 +98,9 @@ def convert_verilog_sources_to_netlist_svg(service_request: ServiceRequest):
     )  # https://docs.python.org/3/library/subprocess.html#subprocess.run
     log += completed_yosys.stdout.decode("utf-8")
     if completed_yosys.returncode != 0:
-        raise JsonResponse(
+        raise HTTPException(
             status_code=400,
-            content=ServiceError(
+            detail=ServiceError(
                 error=f"run yosys failed {completed_yosys.stderr.decode('utf-8')}",
                 log=log,
             ),
@@ -114,9 +114,9 @@ def convert_verilog_sources_to_netlist_svg(service_request: ServiceRequest):
     )
     log += completed_netlistsvg.stdout.decode("utf-8")
     if completed_netlistsvg.returncode != 0:
-        raise JsonResponse(
+        raise HTTPException(
             status_code=400,
-            content=ServiceError(
+            detail=ServiceError(
                 error=f"run netlistsvg failed {completed_netlistsvg.stderr.decode('utf-8')}",
                 log=log,
             ),

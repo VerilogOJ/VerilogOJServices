@@ -26,10 +26,25 @@ git pull && sudo docker compose up --detach --build
 ```sh
 $ curl -H "Host: verilogojservices.service0" 166.111.223.67:1234
 {"service_id":0}%
-curl -H "Host: verilogojservices.verilogsources2netlistsvg" 166.111.223.67:1234
+$ curl -X POST -H "Host: verilogojservices.verilogsources2netlistsvg" 166.111.223.67:1234
+{"detail":[{"loc":["body"],"msg":"field required","type":"value_error.missing"}]}%
+$ curl -X POST 166.111.223.67:1234  --data '{"verilog_sources": ["module top(in, out);\\ninput in;\\noutput out;\\nassign out = ~in;\\nendmodule"],"top_module": "top"}' -H "Host: verilogojservices.verilogsources2netlistsvg" -H "Content-Type: application/json"
 ```
 
 即可得到服务返回的结果
 
 ## 部署失败
 
+查看正在运行的容器
+
+```sh
+sudo docker ps -a
+```
+
+如果服务容器意外退出，使用
+
+```sh
+sudo docker logs <container_id>
+```
+
+查看部署中的错误。
