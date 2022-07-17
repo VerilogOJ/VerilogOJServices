@@ -23,7 +23,6 @@ git pull && sudo docker compose up --detach --build
 
 ## 成功部署
 
-
 ```sh
 $ curl -H "Host: verilogojservices.service0" 166.111.223.67:1234
 {"service_id":0}%
