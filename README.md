@@ -23,6 +23,8 @@ git pull && sudo docker compose up --detach --build
 
 ## 成功部署
 
+### 默认服务测试
+
 ```sh
 curl -H "Host: verilogojservices.service0" 166.111.223.67:1234
 ```
@@ -31,8 +33,14 @@ curl -H "Host: verilogojservices.service0" 166.111.223.67:1234
 {"service_id":0}%
 ```
 
+### 实际服务测试
+
 ```sh
 curl -X POST 166.111.223.67:8000 -H "Host: verilogojservices.verilogsources2netlistsvg"  -H "Content-Type: application/json" --data '{"verilog_sources": ["module top(in, out);\ninput in;\noutput out;\nassign out = ~in;\nendmodule"],"top_module": "top"}' 
+```
+
+```
+{"netlist_svg":"<svg ... </svg>\n","log":"开始处理2022/07/17, 13:46:53\n ... "}%
 ```
 
 即可得到服务返回的结果
