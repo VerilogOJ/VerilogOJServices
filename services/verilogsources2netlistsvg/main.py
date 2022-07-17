@@ -1,9 +1,11 @@
+from http.client import HTTPException
 from typing import Union, List
 import subprocess
 import os
 from datetime import datetime
+from django.http import JsonResponse
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Query, Body
 from pydantic import BaseModel
 
 
@@ -11,20 +13,33 @@ app = FastAPI()
 
 
 class ServiceRequest(BaseModel):
-    verilog_sources: List[str]
-    top_module: str
+    verilog_sources: List[str] = Body(title="Verilog源文件，可以是多文件")
+    top_module: str = Body(title="顶层模块的名称")
 
 
 class ServiceResponse(BaseModel):
-    log: str
-    error: Union[str, None]
-    netlist_svg: Union[str, None]
+    netlist_svg: Union[str, None] = Body(title="用netlistsvg生成的逻辑电路图")
+    log: str = Body(title="过程日志")
 
 
-@app.put("/")
-def convert_verilog_sources_to_netlist_svg(
-    service_request: ServiceRequest,
-) -> ServiceResponse:
+class ServiceError(BaseModel):
+    error: Union[str, None] = Body(title="发生的错误信息")
+    log: str = Body(title="过程日志")
+
+
+@app.put(
+    "/",
+    # https://fastapi.tiangolo.com/advanced/additional-responses/
+    responses={
+        200: {"model": ServiceResponse, "description": "成功转为svg"},
+        400: {"model": ServiceError, "description": "程序内部出错"},
+    },
+)
+def convert_verilog_sources_to_netlist_svg(service_request: ServiceRequest):
+    """
+    上传Verilog源文件并制定顶层模块，返回逻辑电路图svg
+    """
+
     print(f"start with request {service_request}")
     log = "开始处理" + datetime.now().strftime("%Y/%m/%d, %H:%M:%S")
 
@@ -37,22 +52,23 @@ def convert_verilog_sources_to_netlist_svg(
         return which(program_name) is not None
 
     if not program_exists("yosys"):
-        response = ServiceResponse(
-            log=log, error="yosys not installed", netlist_svg=None
+        raise HTTPException(
+            status_code=404,
+            detail=ServiceError(error="yosys not installed", log=log),
         )
-        return response
     if not program_exists("netlistsvg"):
-        response = ServiceResponse(
-            log=log, error="netlistsvg not installed", netlist_svg=None
+        raise JsonResponse(
+            status_code=400,
+            content=ServiceError(error="netlistsvg not installed", log=log),
         )
-        return response
 
     # [保存用户上传的verilog源文件]
     base_path = "./temp/"
     verilog_sources_folder = "verilog_sources/"
     if service_request.verilog_sources.count == 0:
-        return ServiceResponse(
-            log=log, error="no verilog sources provided", netlist_svg=None
+        raise JsonResponse(
+            status_code=400,
+            content=ServiceError(error="no verilog sources provided", log=log),
         )
     verilog_sources_path = []
     for i, verilog_source in enumerate(service_request.verilog_sources):
@@ -83,10 +99,12 @@ def convert_verilog_sources_to_netlist_svg(
     )  # https://docs.python.org/3/library/subprocess.html#subprocess.run
     log += completed_yosys.stdout.decode("utf-8")
     if completed_yosys.returncode != 0:
-        return ServiceResponse(
-            log=log,
-            error=f"run yosys failed {completed_yosys.stderr.decode('utf-8') }",
-            netlist_svg=None,
+        raise JsonResponse(
+            status_code=400,
+            content=ServiceError(
+                error=f"run yosys failed {completed_yosys.stderr.decode('utf-8')}",
+                log=log,
+            ),
         )
 
     # [运行netlistsvg]
@@ -97,13 +115,15 @@ def convert_verilog_sources_to_netlist_svg(
     )
     log += completed_netlistsvg.stdout.decode("utf-8")
     if completed_netlistsvg.returncode != 0:
-        return ServiceResponse(
-            log=log,
-            error=f"run netlistsvg failed {completed_netlistsvg.stderr.decode('utf-8')}",
-            netlist_svg=None,
+        raise JsonResponse(
+            status_code=400,
+            content=ServiceError(
+                error=f"run netlistsvg failed {completed_netlistsvg.stderr.decode('utf-8')}",
+                log=log,
+            ),
         )
 
     # [读取netlist.svg并返回]
     with open(netlist_svg_path, "r") as f:
         netlist_svg_content = f.read()
-    return ServiceResponse(log=log, error=None, netlist_svg=netlist_svg_content)
+    return ServiceResponse(log=log, netlist_svg=netlist_svg_content)
