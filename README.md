@@ -23,13 +23,11 @@ git pull && sudo docker compose up --detach --build
 
 ## 成功部署
 
-服务器上执行（或将`localhost`改为服务器ip后在本地执行）
-
-TODO 更新 如何在浏览器访问到有host的docs/文件夹
 
 ```sh
-$ curl -H "Host: verilogojservices.service0" localhost:1234
-curl -H "Host: verilogojservices.verilogsources2netlistsvg" localhost:1234
+$ curl -H "Host: verilogojservices.service0" 166.111.223.67:1234
+{"service_id":0}%
+curl -H "Host: verilogojservices.verilogsources2netlistsvg" 166.111.223.67:1234
 ```
 
 即可得到服务返回的结果

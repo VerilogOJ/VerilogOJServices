@@ -11,6 +11,10 @@ services:
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
 
+    depends_on:
+      - service0
+      - service1
+
   service0:
     build:
       context: ./services/${service0_name}
