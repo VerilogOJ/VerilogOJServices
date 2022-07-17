@@ -52,12 +52,12 @@ def convert_verilog_sources_to_netlist_svg(service_request: ServiceRequest):
     if not program_exists("yosys"):
         raise HTTPException(
             status_code=404,
-            detail=ServiceError(error="yosys not installed", log=log),
+            detail=ServiceError(error="yosys not installed", log=log).json(),
         )
     if not program_exists("netlistsvg"):
         raise HTTPException(
             status_code=404,
-            detail=ServiceError(error="netlistsvg not installed", log=log),
+            detail=ServiceError(error="netlistsvg not installed", log=log).json(),
         )
 
     # [保存用户上传的verilog源文件]
@@ -66,7 +66,7 @@ def convert_verilog_sources_to_netlist_svg(service_request: ServiceRequest):
     if service_request.verilog_sources.count == 0:
         raise HTTPException(
             status_code=400,
-            detail=ServiceError(error="no verilog sources provided", log=log),
+            detail=ServiceError(error="no verilog sources provided", log=log).json(),
         )
     verilog_sources_path = []
     for i, verilog_source in enumerate(service_request.verilog_sources):
@@ -102,7 +102,7 @@ def convert_verilog_sources_to_netlist_svg(service_request: ServiceRequest):
             detail=ServiceError(
                 error=f"run yosys failed {completed_yosys.stderr.decode('utf-8')}",
                 log=log,
-            ),
+            ).json(),
         )
 
     # [运行netlistsvg]
@@ -118,7 +118,7 @@ def convert_verilog_sources_to_netlist_svg(service_request: ServiceRequest):
             detail=ServiceError(
                 error=f"run netlistsvg failed {completed_netlistsvg.stderr.decode('utf-8')}",
                 log=log,
-            ),
+            ).json(),
         )
 
     # [读取netlist.svg并返回]
