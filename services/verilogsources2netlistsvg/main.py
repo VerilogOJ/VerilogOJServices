@@ -3,7 +3,6 @@ from typing import Union, List
 import subprocess
 import os
 from datetime import datetime
-from django.http import JsonResponse
 
 from fastapi import FastAPI, Query, Body
 from pydantic import BaseModel
