@@ -109,12 +109,16 @@ def convert_verilog_sources_to_netlist_svg(service_request: ServiceRequest):
     simulation_program_reference_path = base_path + "simulation_program_reference"
     completed_iverilog_reference = subprocess.run(
         [
-            f"iverilog {code_reference_path} {testbench_path} -o {simulation_program_reference_path}"
-        ]
+            f"iverilog {code_reference_path} {testbench_path} -o {simulation_program_reference_path}",
+        ],
+        capture_output=True,
+        shell=True,
     )
     log += completed_iverilog_reference.stdout.decode("utf-8")
     completed_vvp_reference = subprocess.run(
-        [f"vvp {simulation_program_reference_path}"]
+        [f"vvp {simulation_program_reference_path}"],
+        capture_output=True,
+        shell=True,
     )
     log += completed_vvp_reference.stdout.decode("utf-8")
     if completed_iverilog_reference != 0 or completed_vvp_reference != 0:
@@ -130,11 +134,17 @@ def convert_verilog_sources_to_netlist_svg(service_request: ServiceRequest):
     simulation_program_student_path = base_path + "simulation_program_student"
     completed_iverilog_student = subprocess.run(
         [
-            f"iverilog {code_student_path} {testbench_path} -o {simulation_program_student_path}"
-        ]
+            f"iverilog {code_student_path} {testbench_path} -o {base_path}"
+        ],
+        capture_output=True,
+        shell=True,
     )
     log += completed_iverilog_student.stdout.decode("utf-8")
-    completed_vvp_student = subprocess.run([f"vvp {simulation_program_student_path}"])
+    completed_vvp_student = subprocess.run(
+        [f"vvp {simulation_program_student_path}"],
+        capture_output=True,
+        shell=True,
+    )
     log += completed_vvp_student.stdout.decode("utf-8")
     if completed_iverilog_student != 0 or completed_vvp_student != 0:
         raise HTTPException(

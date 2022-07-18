@@ -8,7 +8,7 @@
 
 ```sh
 pip3 install -r requirements.txt
-sudo apt install yosys iverilog
+sudo apt install yosys iverilog # on macOS `brew install yosys icarus-verilog`
 uvicorn main:app --reload
 ```
 
