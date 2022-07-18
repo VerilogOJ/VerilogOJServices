@@ -1,14 +1,9 @@
+import requests  # https://requests.readthedocs.io/en/latest/
 import json
 
-from fastapi.testclient import TestClient
 
-from .main import app
-
-client = TestClient(app)
-
-
-def test_main():
-    decoder_reference = """
+def test_single_file():
+    code_reference = """
 module decoder(
     input [2:0] x,
     output reg [7:0] y
@@ -28,7 +23,7 @@ module decoder(
 endmodule
     """.strip()
 
-    decoder_student = """
+    code_student = """
 module decoder(
     input [2:0] x,
     output reg [7:0] y
@@ -68,12 +63,35 @@ module testbench();
 endmodule
     """.strip()
 
-    service_request = {
-        "code_reference": decoder_reference,
-        "code_student": decoder_student,
+    request_data = {
+        "code_reference": code_reference,
+        "code_student": code_student,
         "testbench": testbench,
         "top_module": "decoder",
     }
-    response = client.post("/", json=service_request)
-    print(json.loads(response.content))
-    assert response.status_code == 200
+    url = "http://166.111.223.67:1234"
+
+    print("[request started]")
+    response_origin = requests.post(
+        url=url,
+        data=json.dumps(request_data),
+        headers={"Host": "verilogojservices.judger"},
+    )
+    print("[request ended]")
+
+    print(f"[status_code] {response_origin.status_code}")
+    response = json.loads(response_origin.content)
+
+    if response_origin.status_code == 200:
+        print(f"[successed]")
+
+        print(f'[is_correct] {response["is_correct"]}')
+        print(f'[log] {response["log"]}')
+        print(f'[wavejson] {response["wavejson"]}')
+    else:
+        print(f"[failed]")
+
+        print(f'[error] {response["error"]}')
+        print(f'[log] {response["log"]}')
+
+    assert response_origin.status_code == 200

@@ -44,7 +44,12 @@ curl -X POST 166.111.223.67:1234 -H "Host: verilogojservices.verilogsources2netl
 {"netlist_svg":"<svg ... </svg>\n","log":"开始处理2022/07/17, 13:46:53\n ... "}%
 ```
 
-即可得到服务返回的结果
+### Python测试
+
+```sh
+pytest tests # 执行`tests/`中的所有测试
+pytest tests -s # 执行`tests/`中的所有测试 并进行标准输出
+```
 
 ### 查看API文档
 
