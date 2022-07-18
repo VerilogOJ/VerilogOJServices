@@ -160,7 +160,7 @@ def convert_verilog_sources_to_netlist_svg(service_request: ServiceRequest):
 
     # [判断波形图是否一致]
 
-    from .utilities import vcd_main
+    from . import vcd_main
 
     ret, msg = vcd_main.main()
     is_correct = ret
@@ -168,7 +168,7 @@ def convert_verilog_sources_to_netlist_svg(service_request: ServiceRequest):
 
     # [得到波形的WaveJSON wave.json]
 
-    from .utilities import vcd_visualize
+    from . import vcd_visualize
 
     wave_json_path = base_path + "wave.json"
     vcd_visualize.main()  # TODO: 可变参数

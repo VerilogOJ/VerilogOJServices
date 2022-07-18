@@ -5,8 +5,7 @@ module testbench();
 
     // http://www.referencedesigner.com/tutorials/verilog/verilog_62.php
     initial begin
-        // https://github.com/steveicarus/iverilog/issues/202#issuecomment-470249013
-        $dumpfile(`DUMP_FILE_NAME);
+        $dumpfile("out.vcd");
         // This will dump all signal, which may not be useful
         //$dumpvars;
 
