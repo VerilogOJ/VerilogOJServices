@@ -284,8 +284,6 @@ class VcdConverter:
 
 
 def vcd_main():
-    from .wavedump import VcdComparator
-
     cmpr = VcdComparator(
         "./temp_uuid/reference.vcd",
         "./temp_uuid/student.vcd",
@@ -297,10 +295,10 @@ def vcd_main():
     return (ret, msg)
 
 
-# [vcd_visual.py]
+# [vcd_visualize.py]
 
 
-def vcd_visual():
+def vcd_visualize():
     from pyDigitalWaveTools.vcd.parser import VcdParser
 
     with open("./temp_uuid/reference.vcd") as f:
@@ -500,8 +498,6 @@ def judge_student_code(service_request: ServiceRequest):
     log += msg
 
     # [得到波形的WaveJSON wave.json]
-
-    from . import vcd_visualize
 
     wave_json_path = base_path + "wave.json"
     vcd_visualize()  # TODO: 可变参数

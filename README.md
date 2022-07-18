@@ -74,3 +74,5 @@ sudo docker logs <container_id>
 ```
 
 查看部署中的错误。
+
+> 注：有时部署失败是网络问题，可以重新`docker compose up`一下
