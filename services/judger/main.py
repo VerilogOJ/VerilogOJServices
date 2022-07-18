@@ -121,7 +121,7 @@ def convert_verilog_sources_to_netlist_svg(service_request: ServiceRequest):
         shell=True,
     )
     log += completed_vvp_reference.stdout.decode("utf-8")
-    if completed_iverilog_reference != 0 or completed_vvp_reference != 0:
+    if completed_iverilog_reference.returncode != 0 or completed_vvp_reference.returncode != 0:
         raise HTTPException(
             status_code=400,
             detail=ServiceError(
@@ -146,7 +146,7 @@ def convert_verilog_sources_to_netlist_svg(service_request: ServiceRequest):
         shell=True,
     )
     log += completed_vvp_student.stdout.decode("utf-8")
-    if completed_iverilog_student != 0 or completed_vvp_student != 0:
+    if completed_iverilog_student.returncode != 0 or completed_vvp_student.returncode != 0:
         raise HTTPException(
             status_code=400,
             detail=ServiceError(
