@@ -134,7 +134,7 @@ def convert_verilog_sources_to_netlist_svg(service_request: ServiceRequest):
     simulation_program_student_path = base_path + "simulation_program_student"
     completed_iverilog_student = subprocess.run(
         [
-            f"iverilog {code_student_path} {testbench_path} -o {base_path}"
+            f"iverilog {code_student_path} {testbench_path} -o {simulation_program_student_path}"
         ],
         capture_output=True,
         shell=True,
