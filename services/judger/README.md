@@ -1,14 +1,14 @@
-# VerilogOJ服务 verilogsources2netlistsvg
+# VerilogOJ服务 judger
 
 ## 简介
 
-将多verilog源文件转为netlistsvg
+通过testbench对学生提交的Verilog代码和答案进行测试，输出波形一样则代表学生提交的代码正确。
 
 ## 开发
 
 ```sh
 pip3 install -r requirements.txt && pip3 install -e pyDigitalWaveTools 
-sudo apt install yosys iverilog # on macOS `brew install yosys icarus-verilog`
+sudo apt install yosys iverilog # 此服务以Ubuntu20.04为准 macOS上通过brew安装的icarus-verilog的-o参数有问题
 uvicorn main:app --reload
 ```
 
@@ -20,7 +20,3 @@ uvicorn main:app --reload
 pip3 install pytest # or conda install pytest
 pytest -s test_main.py
 ```
-
-## 部署
-
-请使用项目根目录下的`docker-compose.yml`部署
