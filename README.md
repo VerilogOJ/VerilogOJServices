@@ -27,7 +27,7 @@ git pull && sudo docker compose up --detach --build
 默认服务测试
 
 ```sh
-curl -H "Host: verilogojservices.service0" 166.111.223.67:1234
+curl -X GET http://166.111.223.67:1234 -H "Host: verilogojservices.service0"
 ```
 
 ```
@@ -37,7 +37,7 @@ curl -H "Host: verilogojservices.service0" 166.111.223.67:1234
 实际服务测试
 
 ```sh
-curl -X POST 166.111.223.67:1234 -H "Host: verilogojservices.verilogsources2netlistsvg"  -H "Content-Type: application/json" --data '{"verilog_sources": ["module top(in, out);\ninput in;\noutput out;\nassign out = ~in;\nendmodule"],"top_module": "top"}' 
+curl -X POST http://166.111.223.67:1234 -H "Host: verilogojservices.verilogsources2netlistsvg"  -H "Content-Type: application/json" --data '{"verilog_sources": ["module top(in, out);\ninput in;\noutput out;\nassign out = ~in;\nendmodule"],"top_module": "top"}'
 ```
 
 ```
