@@ -1,9 +1,10 @@
 # VerilogOjServices
 
+该服务使用同一个端口（如1234）提供多个服务
+
 - [nginx-proxy Documentation](https://github.com/nginx-proxy/nginx-proxy)
 
 ## 服务部署
-
 
 ### 初次部署
 
@@ -36,7 +37,7 @@ curl -H "Host: verilogojservices.service0" 166.111.223.67:1234
 ### 实际服务测试
 
 ```sh
-curl -X POST 166.111.223.67:8000 -H "Host: verilogojservices.verilogsources2netlistsvg"  -H "Content-Type: application/json" --data '{"verilog_sources": ["module top(in, out);\ninput in;\noutput out;\nassign out = ~in;\nendmodule"],"top_module": "top"}' 
+curl -X POST 166.111.223.67:1234 -H "Host: verilogojservices.verilogsources2netlistsvg"  -H "Content-Type: application/json" --data '{"verilog_sources": ["module top(in, out);\ninput in;\noutput out;\nassign out = ~in;\nendmodule"],"top_module": "top"}' 
 ```
 
 ```
@@ -44,6 +45,14 @@ curl -X POST 166.111.223.67:8000 -H "Host: verilogojservices.verilogsources2netl
 ```
 
 即可得到服务返回的结果
+
+### 查看API文档
+
+在Chrome安装[ModHeader插件](https://chrome.google.com/webstore/detail/modheader/idgpnmonknjnojddfkpgkljpfnnfcklj)
+
+添加一个Header为`Host` 值为服务名称如`verilogojservices.verilogsources2netlistsvg` （注意将ModHeader当前profile开启）
+
+访问<166.111.223.67:1234/docs>即可看到对应服务的文档（使用完毕可以将ModHead中的profile暂停）
 
 ## 部署失败
 
