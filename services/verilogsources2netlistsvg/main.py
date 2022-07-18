@@ -3,7 +3,7 @@ import subprocess
 import os
 from datetime import datetime
 
-from fastapi import FastAPI, Query, Body, HTTPException
+from fastapi import FastAPI, Body, HTTPException
 from pydantic import BaseModel
 
 
@@ -16,12 +16,12 @@ class ServiceRequest(BaseModel):
 
 
 class ServiceResponse(BaseModel):
-    netlist_svg: Union[str, None] = Body(title="用netlistsvg生成的逻辑电路图")
+    netlist_svg: str = Body(title="用netlistsvg生成的逻辑电路图")
     log: str = Body(title="过程日志")
 
 
 class ServiceError(BaseModel):
-    error: Union[str, None] = Body(title="发生的错误信息")
+    error: str = Body(title="发生的错误信息")
     log: str = Body(title="过程日志")
 
 
@@ -35,7 +35,7 @@ class ServiceError(BaseModel):
 )
 def convert_verilog_sources_to_netlist_svg(service_request: ServiceRequest):
     """
-    上传Verilog源文件并制定顶层模块，返回逻辑电路图svg
+    上传Verilog源文件并指定顶层模块，返回逻辑电路图svg
     """
 
     print(f"start with request {service_request}")

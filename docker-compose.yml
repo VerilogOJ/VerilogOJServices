@@ -32,10 +32,26 @@ services:
       dockerfile: Dockerfile
     image: ${services_namespace}_${service1_name}:v1
     container_name: ${services_namespace}_${service1_name}
+    
     expose:
       - "80"
     environment:
       - VIRTUAL_HOST=${services_namespace}.${service1_name}
+      - VIRTUAL_PORT=80
+    depends_on:
+      - nginx-proxy
+
+  service2:
+    build:
+      context: ./services/${service2_name}
+      dockerfile: Dockerfile
+    image: ${services_namespace}_${service2_name}:v1
+    container_name: ${services_namespace}_${service2_name}
+    
+    expose:
+      - "80"
+    environment:
+      - VIRTUAL_HOST=${services_namespace}.${service2_name}
       - VIRTUAL_PORT=80
     depends_on:
       - nginx-proxy
