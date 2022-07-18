@@ -19,7 +19,7 @@ uvicorn main:app --reload
 
 ```sh
 pip3 install pytest # or conda install pytest
-pytest
+pytest -s test_main.py
 ```
 
 ```

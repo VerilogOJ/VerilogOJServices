@@ -1,8 +1,6 @@
 # VerilogOjServices
 
-该服务使用同一个端口（如1234）提供多个服务
-
-- [nginx-proxy Documentation](https://github.com/nginx-proxy/nginx-proxy)
+该服务使用[nginx-proxy](https://github.com/nginx-proxy/nginx-proxy)在同一个端口（如1234）提供多个服务
 
 ## 服务部署
 
@@ -50,6 +48,8 @@ curl -X POST 166.111.223.67:1234 -H "Host: verilogojservices.verilogsources2netl
 pytest tests # 执行`tests/`中的所有测试
 pytest tests -s # 执行`tests/`中的所有测试 并进行标准输出
 ```
+
+该测试会测试服务器的部署情况。想要独立测试某个服务，请查看各服务的`README.md`。
 
 ### 查看API文档
 
