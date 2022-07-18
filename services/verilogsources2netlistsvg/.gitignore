@@ -3,5 +3,5 @@ __pycache__/
 .pytest_cache/
 
 # Project
-temp/
+temp*/
 netlist.svg
