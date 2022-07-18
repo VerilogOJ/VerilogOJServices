@@ -7,7 +7,7 @@
 ## 开发
 
 ```sh
-pip3 install -r requirements.txt
+pip3 install -r requirements.txt && pip3 install -e pyDigitalWaveTools 
 sudo apt install yosys iverilog # on macOS `brew install yosys icarus-verilog`
 uvicorn main:app --reload
 ```

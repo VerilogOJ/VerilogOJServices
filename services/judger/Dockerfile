@@ -12,6 +12,7 @@ RUN sed -i 's/archive.ubuntu.com/mirrors.ustc.edu.cn/g' /etc/apt/sources.list \
     && apt-get update && apt-get install -y \
         yosys iverilog \
         python3 python3-pip \
-    && pip install --no-cache-dir --upgrade -r requirements.txt
+    && pip install --no-cache-dir --upgrade -r requirements.txt \
+    && pip3 install -e pyDigitalWaveTools 
 
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]

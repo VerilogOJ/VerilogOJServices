@@ -4,7 +4,7 @@ import sys
 
 def main():
     from pyDigitalWaveTools.vcd.parser import VcdParser
-    from wavedump import VcdConverter
+    from .wavedump import VcdConverter
 
     with open("./temp_uuid/reference.vcd") as f:
         vcd = VcdParser()
