@@ -305,18 +305,18 @@ def vcd_visualize(
 
     vc_reference = VcdConverter(data_reference)
     vc_reference.addToWaveJsonSeparate(
-        map(lambda name: f"root/testbench/{name}", signal_names), "reference_"
+        list(map(lambda name: f"root/testbench/{name}", signal_names)), "reference_"
     )
     vc_reference.addToWaveJsonAggregated(
-        map(lambda name: f"root/testbench/{name}", signal_names), "reference_"
+        list(map(lambda name: f"root/testbench/{name}", signal_names)), "reference_"
     )
 
     vc_student = VcdConverter(data_student)
     vc_student.addToWaveJsonSeparate(
-        map(lambda name: f"root/testbench/{name}", signal_names), "your_"
+        list(map(lambda name: f"root/testbench/{name}", signal_names)), "your_"
     )
     vc_student.addToWaveJsonAggregated(
-        map(lambda name: f"root/testbench/{name}", signal_names), "your_"
+        list(map(lambda name: f"root/testbench/{name}", signal_names)), "your_"
     )
 
     vc_reference.mergeWaveDict(vc_student.emitWaveDict())
@@ -492,8 +492,8 @@ def judge_student_code(service_request: ServiceRequest):
     cmpr = VcdComparator(
         vcd_ref=vcd_reference_path,
         vcd_ut=vcd_student_path,
-        signal_names=map(
-            lambda name: f"root/testbench/{name}", service_request.signal_names
+        signal_names=list(
+            map(lambda name: f"root/testbench/{name}", service_request.signal_names)
         ),
     )
     ret, msg = cmpr.compare()
