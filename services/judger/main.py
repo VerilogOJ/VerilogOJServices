@@ -285,18 +285,6 @@ class VcdConverter:
             self.output["signal"].append(sig_json)
 
 
-def vcd_main():
-    cmpr = VcdComparator(
-        "./temp_uuid/reference.vcd",
-        "./temp_uuid/student.vcd",
-        ["root/testbench/x", "root/testbench/y"],
-    )  # TODO 这里看起来是要放入信号的样子 这里testbench是testbench.v中模块的名称 之后的x和y是信号的名称
-    ret, msg = cmpr.compare()
-    print(msg)
-    print("Ret status: {}".format(ret))
-    return (ret, msg)
-
-
 # [vcd_visualize.py]
 
 
@@ -344,8 +332,10 @@ app = FastAPI()
 class ServiceRequest(BaseModel):
     code_reference: str = Body(title="题目答案的Verilog源文件")
     code_student: str = Body(title="学生提交的Verilog源文件")
-    signal_names: List[str] = Body(title="需要进行波形显示的信号名称")
-    testbench: str = Body(title="测试样例的Verilog文件，单个testbench表示一个测试点")
+    signal_names: List[str] = Body(
+        title="需要进行波形显示的信号名称", description="指testbench中模块的信号名称"
+    )
+    testbench: str = Body(title="测试样例的Verilog文件", description="顶层模块的名称必须为`testbench`。")
     top_module: str = Body(title="顶层模块的名称，注意需要保证学生、答案的顶层模块和top_module相同")
 
 
@@ -499,7 +489,15 @@ def judge_student_code(service_request: ServiceRequest):
 
     # [判断波形图是否一致]
 
-    ret, msg = vcd_main()  # TODO: 可变参数
+    cmpr = VcdComparator(
+        vcd_ref=vcd_reference_path,
+        vcd_ut=vcd_student_path,
+        signal_names=map(
+            lambda name: f"root/testbench/{name}", service_request.signal_names
+        ),
+    )
+    ret, msg = cmpr.compare()
+    print(msg, "Ret status: {}".format(ret))
     is_correct = ret
     log += msg
 
