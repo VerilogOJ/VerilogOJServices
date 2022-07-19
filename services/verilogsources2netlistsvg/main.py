@@ -1,9 +1,11 @@
 from typing import Union, List
 import subprocess
 import os
+import uuid
 from datetime import datetime
 
 from fastapi import FastAPI, Body, HTTPException
+from py import process
 from pydantic import BaseModel
 
 
@@ -61,7 +63,11 @@ def convert_verilog_sources_to_netlist_svg(service_request: ServiceRequest):
         )
 
     # [保存用户上传的verilog源文件]
-    base_path = "./temp/"
+
+    processing_id = uuid.uuid4().hex
+    base_path = (
+        f"./temp/{processing_id}/"  # https://docs.python.org/3/library/uuid.html
+    )
     verilog_sources_folder = "verilog_sources/"
     if service_request.verilog_sources.count == 0:
         raise HTTPException(
@@ -77,6 +83,7 @@ def convert_verilog_sources_to_netlist_svg(service_request: ServiceRequest):
             f.write(verilog_source)
 
     # [生成yosys脚本]
+
     netlist_json_path = base_path + "netlist.json"
     yosys_script_content = f"""
     read -sv {" ".join(verilog_sources_path)}
@@ -90,6 +97,7 @@ def convert_verilog_sources_to_netlist_svg(service_request: ServiceRequest):
         f.write(yosys_script_content)
 
     # [运行yosys脚本]
+
     completed_yosys = subprocess.run(
         [f"yosys {yosys_script_path}"],  # 注意这里块不能分开写 否则yosys会进入交互模式
         capture_output=True,
@@ -106,6 +114,7 @@ def convert_verilog_sources_to_netlist_svg(service_request: ServiceRequest):
         )
 
     # [运行netlistsvg]
+
     netlist_svg_path = base_path + "netlist.svg"
     completed_netlistsvg = subprocess.run(
         ["netlistsvg", netlist_json_path, "-o", netlist_svg_path],
@@ -122,6 +131,7 @@ def convert_verilog_sources_to_netlist_svg(service_request: ServiceRequest):
         )
 
     # [读取netlist.svg并返回]
+
     with open(netlist_svg_path, "r") as f:
         netlist_svg_content = f.read()
     return ServiceResponse(log=log, netlist_svg=netlist_svg_content)

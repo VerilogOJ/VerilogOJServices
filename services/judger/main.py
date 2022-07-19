@@ -1,6 +1,7 @@
 from typing import Union
 import subprocess
 import os
+import uuid
 from datetime import datetime
 
 from fastapi import FastAPI, Body, HTTPException
@@ -392,7 +393,8 @@ def judge_student_code(service_request: ServiceRequest):
 
     # [保存: 学生提交的Verilog 答案的Verilog testbench]
 
-    base_path = "./temp_uuid/"
+    processing_id = uuid.uuid4().hex
+    base_path = f"./temp/{processing_id}/"
 
     code_student_path = base_path + "code_student.v"
     if service_request.code_student == "":
