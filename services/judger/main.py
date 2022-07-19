@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Union, List
 import subprocess
 import os
 import uuid
@@ -13,6 +13,7 @@ from pydantic import BaseModel
 
 
 from pyDigitalWaveTools.vcd.parser import VcdParser
+from requests import request
 
 
 class VcdSignalTraversalError(Exception):
@@ -299,38 +300,40 @@ def vcd_main():
 # [vcd_visualize.py]
 
 
-def vcd_visualize():
+def vcd_visualize(
+    vcd_reference_path: str, vcd_student_path: str, signal_names: List[str]
+) -> str:
     from pyDigitalWaveTools.vcd.parser import VcdParser
 
-    with open("./temp_uuid/reference.vcd") as f:
+    with open(vcd_reference_path) as f:
         vcd = VcdParser()
         vcd.parse(f)
         data_reference = vcd.scope.toJson()
 
-    with open("./temp_uuid/student.vcd") as f:
+    with open(vcd_student_path) as f:
         vcd = VcdParser()
         vcd.parse(f)
         data_student = vcd.scope.toJson()
 
     vc_reference = VcdConverter(data_reference)
     vc_reference.addToWaveJsonSeparate(
-        ["root/testbench/x", "root/testbench/y"], "reference_"
+        map(lambda name: f"root/testbench/{name}", signal_names), "reference_"
     )
     vc_reference.addToWaveJsonAggregated(
-        ["root/testbench/x", "root/testbench/y"], "reference_"
+        map(lambda name: f"root/testbench/{name}", signal_names), "reference_"
     )
 
     vc_student = VcdConverter(data_student)
-    vc_student.addToWaveJsonSeparate(["root/testbench/x", "root/testbench/y"], "your_")
+    vc_student.addToWaveJsonSeparate(
+        map(lambda name: f"root/testbench/{name}", signal_names), "your_"
+    )
     vc_student.addToWaveJsonAggregated(
-        ["root/testbench/x", "root/testbench/y"], "your_"
+        map(lambda name: f"root/testbench/{name}", signal_names), "your_"
     )
 
     vc_reference.mergeWaveDict(vc_student.emitWaveDict())
     out = vc_reference.emitWaveJson()
-
-    with open("./temp_uuid/wave.json", "w") as f:
-        f.write(out)
+    return out
 
 
 # ------------
@@ -341,6 +344,7 @@ app = FastAPI()
 class ServiceRequest(BaseModel):
     code_reference: str = Body(title="题目答案的Verilog源文件")
     code_student: str = Body(title="学生提交的Verilog源文件")
+    signal_names: List[str] = Body(title="需要进行波形显示的信号名称")
     testbench: str = Body(title="测试样例的Verilog文件，单个testbench表示一个测试点")
     top_module: str = Body(title="顶层模块的名称，注意需要保证学生、答案的顶层模块和top_module相同")
 
@@ -495,17 +499,15 @@ def judge_student_code(service_request: ServiceRequest):
 
     # [判断波形图是否一致]
 
-    ret, msg = vcd_main()
+    ret, msg = vcd_main()  # TODO: 可变参数
     is_correct = ret
     log += msg
 
-    # [得到波形的WaveJSON wave.json]
+    # [得到波形的WaveJSON并返回]
 
-    wave_json_path = base_path + "wave.json"
-    vcd_visualize()  # TODO: 可变参数
-
-    # [读取netlist.svg并返回]
-
-    with open(wave_json_path, "r") as f:
-        wave_json_content = f.read()
+    wave_json_content = vcd_visualize(
+        vcd_reference_path=vcd_reference_path,
+        vcd_student_path=vcd_student_path,
+        signal_names=service_request.signal_names,
+    )
     return ServiceResponse(is_correct=is_correct, log=log, wavejson=wave_json_content)

@@ -71,6 +71,7 @@ endmodule
     service_request = {
         "code_reference": decoder_reference,
         "code_student": decoder_student,
+        "signal_names": ["x","y"],
         "testbench": testbench,
         "top_module": "decoder",
     }
