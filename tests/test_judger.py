@@ -66,6 +66,7 @@ endmodule
     request_data = {
         "code_reference": code_reference,
         "code_student": code_student,
+        "signal_names": ["x","y"],
         "testbench": testbench,
         "top_module": "decoder",
     }
