@@ -13,7 +13,6 @@ from pydantic import BaseModel
 
 
 from pyDigitalWaveTools.vcd.parser import VcdParser
-from requests import request
 
 
 class VcdSignalTraversalError(Exception):

@@ -1,0 +1,4 @@
+{
+    // diable Python auto-import which just adds bugs to codes
+    "python.analysis.autoImportCompletions": false
+}
