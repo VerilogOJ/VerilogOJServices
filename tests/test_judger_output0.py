@@ -22,7 +22,7 @@ endmodule
     testbench = """
 module testbench();
     wire out;
-    Zero myZero(y);
+    Zero myZero(out);
 
     initial begin
         $dumpfile(`DUMP_FILE_NAME);
