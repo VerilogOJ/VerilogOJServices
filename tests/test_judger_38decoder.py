@@ -90,8 +90,8 @@ endmodule
         print(f'[log] {response["log"]}')
         print(f'[wavejson] {response["wavejson"]}')
     else:
-        print(f"{response_origin.content}")
         print(f"[failed]")
+        print(f"{response_origin.content}")
 
         print(f'[error] {response["error"]}')
         print(f'[log] {response["log"]}')

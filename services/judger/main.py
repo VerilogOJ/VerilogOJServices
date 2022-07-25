@@ -432,7 +432,7 @@ def judge_student_code(service_request: ServiceRequest):
     vcd_reference_path = base_path + "reference.vcd"
     completed_iverilog_reference = subprocess.run(
         [
-            """
+            f"""
             iverilog {code_reference_path} {testbench_path} -D 'DUMP_FILE_NAME="{vcd_reference_path}"' -o {simulation_program_reference_path}
             """
         ],
@@ -465,7 +465,7 @@ def judge_student_code(service_request: ServiceRequest):
     vcd_student_path = base_path + "student.vcd"
     completed_iverilog_student = subprocess.run(
         [
-            """
+            f"""
             iverilog {code_student_path} {testbench_path}  -D 'DUMP_FILE_NAME="{vcd_student_path}"' -o {simulation_program_student_path}
             """
         ],
