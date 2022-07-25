@@ -362,8 +362,13 @@ def judge_student_code(service_request: ServiceRequest):
     上传学生的Verilog代码、答案、testbench并指定顶层模块，返回判题结果和信号波形图
     """
 
-    print(f"start with request {service_request}")
-    log = "开始处理" + datetime.now().strftime("%Y/%m/%d, %H:%M:%S")
+    log_temp = f"""
+    {datetime.now().strftime("%Y/%m/%d, %H:%M:%S")}
+    开始处理请求：
+    {service_request}
+    """
+    log = log_temp
+    print(log_temp)
 
     # [判断宿主机程序存在]
 
@@ -383,6 +388,12 @@ def judge_student_code(service_request: ServiceRequest):
             status_code=404,
             detail=ServiceError(error="iverilog not installed", log=log).json(),
         )
+
+    log_temp = f"""
+    仿真软件已安装
+    """
+    log += log_temp
+    print(log_temp)
 
     # [保存: 学生提交的Verilog 答案的Verilog testbench]
 
@@ -423,6 +434,12 @@ def judge_student_code(service_request: ServiceRequest):
     with open(testbench_path, "w") as f:
         f.write(service_request.testbench)
 
+    log_temp = f"""
+    提交文件已保存
+    """
+    log += log_temp
+    print(log_temp)
+
     # [跑一遍参考的仿真]
     # iverilog ./temp_uuid/testbench.v ./temp_uuid/code_reference.v -o ./temp_uuid/simulation_program_reference
     # vvp ./temp_uuid/simulation_program_reference
@@ -439,14 +456,14 @@ def judge_student_code(service_request: ServiceRequest):
         capture_output=True,
         shell=True,
     )
-    log += completed_iverilog_reference.stdout.decode("utf-8")
+    log += completed_iverilog_reference.stdout.decode("utf-8") + "\n"
     print(log)
     completed_vvp_reference = subprocess.run(
         [f"vvp {simulation_program_reference_path}"],
         capture_output=True,
         shell=True,
     )
-    log += completed_vvp_reference.stdout.decode("utf-8")
+    log += completed_vvp_reference.stdout.decode("utf-8") + "\n"
     if (
         completed_iverilog_reference.returncode != 0
         or completed_vvp_reference.returncode != 0
@@ -458,6 +475,12 @@ def judge_student_code(service_request: ServiceRequest):
                 log=log,
             ).json(),
         )
+
+    log_temp = f"""
+    仿真软件已安装
+    """
+    log += log_temp
+    print(log_temp)
 
     # [跑一遍学生的仿真]
 
@@ -472,13 +495,13 @@ def judge_student_code(service_request: ServiceRequest):
         capture_output=True,
         shell=True,
     )
-    log += completed_iverilog_student.stdout.decode("utf-8")
+    log += completed_iverilog_student.stdout.decode("utf-8") + "\n"
     completed_vvp_student = subprocess.run(
         [f"vvp {simulation_program_student_path}"],
         capture_output=True,
         shell=True,
     )
-    log += completed_vvp_student.stdout.decode("utf-8")
+    log += completed_vvp_student.stdout.decode("utf-8") + "\n"
     if (
         completed_iverilog_student.returncode != 0
         or completed_vvp_student.returncode != 0
@@ -490,6 +513,12 @@ def judge_student_code(service_request: ServiceRequest):
                 log=log,
             ).json(),
         )
+
+    log_temp = f"""
+    仿真结束
+    """
+    log += log_temp
+    print(log_temp)
 
     # [判断波形图是否一致]
 
@@ -506,6 +535,12 @@ def judge_student_code(service_request: ServiceRequest):
     is_correct = ret
     log += msg
 
+    log_temp = f"""
+    波形已比较：{"一致" if is_correct else "不一致"}
+    """
+    log += log_temp
+    print(log_temp)
+
     # [得到波形的WaveJSON并返回]
 
     wave_json_content = vcd_visualize(
@@ -513,4 +548,17 @@ def judge_student_code(service_request: ServiceRequest):
         vcd_student_path=vcd_student_path,
         signal_names=service_request.signal_names,
     )
+
+    log_temp = f"""
+    波形图已生成
+    """
+    log += log_temp
+    print(log_temp)
+
+    log_temp = f"""
+    判题结束
+    """
+    log += log_temp
+    print(log_temp)
+
     return ServiceResponse(is_correct=is_correct, log=log, wavejson=wave_json_content)
