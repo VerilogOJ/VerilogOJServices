@@ -1,3 +1,4 @@
+from io import StringIO
 from typing import Optional
 
 
@@ -32,7 +33,7 @@ class LogValueFormatter():
     def bind_var_info(self, varInfo: "VcdVarWritingInfo"):
         pass
 
-    def format(self, newVal: "Value", updater):
+    def format(self, newVal: "Value", updater, t: int, out: StringIO):
         pass
 
 class VcdEnumFormatter(LogValueFormatter):
@@ -40,33 +41,33 @@ class VcdEnumFormatter(LogValueFormatter):
     def bind_var_info(self, varInfo: "VcdVarWritingInfo"):
         self.vcdId = varInfo.vcdId
 
-    def format(self, newVal: "Value", updater):
+    def format(self, newVal: "Value", updater, t: int, out: StringIO):
         if newVal.vld_mask:
             val = newVal.val
         else:
-            val = "XXXX"
-    
-        return "s%s %s\n" % (val, self.vcdId)
+            val = "UNDEF"
+
+        out.write(f"s{val:s} {self.vcdId:s}\n")
 
 
 class VcdBitsFormatter(LogValueFormatter):
-    
+
     def bind_var_info(self, varInfo: "VcdVarWritingInfo"):
         self.width = varInfo.width
         self.vcdId = varInfo.vcdId
         if self.width == 1:
             self.format = self._format_bit
-            self.suffix = "%s\n" % self.vcdId
+            self.suffix = f"{self.vcdId:s}\n"
         else:
             self.format = self._format_bits
-            self.suffix = " %s\n" % self.vcdId
+            self.suffix = f" {self.vcdId:s}\n"
 
-    def _format_bit(self, newVal: "Value", updater):
+    def _format_bit(self, newVal: "Value", updater, t: int, out: StringIO):
         v = bitToStr(newVal.val, newVal.vld_mask)
-        return v + self.suffix
+        out.write(v + self.suffix)
 
-    def _format_bits(self, newVal: "Value", updater):
-        return bitVectorToStr(newVal.val, self.width, newVal.vld_mask, "b", self.suffix)
+    def _format_bits(self, newVal: "Value", updater, t: int, out: StringIO):
+        out.write(bitVectorToStr(newVal.val, self.width, newVal.vld_mask, "b", self.suffix))
 
     def format(self, newVal: "Value", updater):
         raise Exception("Should have been replaced in bind_var_info")

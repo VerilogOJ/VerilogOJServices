@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import sys
-from typing import Callable
 
 from pyDigitalWaveTools.vcd.common import VcdVarScope, VCD_SIG_TYPE, VcdVarInfo
 from pyDigitalWaveTools.vcd.value_format import LogValueFormatter
@@ -59,7 +58,7 @@ class VcdVarIdScope(dict):
                          valueFormatter: LogValueFormatter):
         varId = self._idToStr(self._nextId)
         if sig is not None and sig in self:
-            raise VarAlreadyRegistered("%r is already registered" % (sig))
+            raise VarAlreadyRegistered(f"{sig} is already registered")
         vInf = VcdVarWritingInfo(
             varId, name, width, sigType, parent, valueFormatter)
         self[sig] = vInf
@@ -85,15 +84,14 @@ class VcdVarWritingScope(VcdVarScope):
         """
         Add variable to scope
 
-        :ivar ~.sig: user specified object to keep track of VcdVarInfo in change() 
+        :ivar ~.sig: user specified object to keep track of VcdVarInfo in change()
         :ivar ~.sigType: vcd type name
         :ivar ~.valueFormatter: value which converts new value in change() to vcd string
         """
         vInf = self._writer._idScope.registerVariable(sig, name, self, width,
                                                       sigType, valueFormatter)
         self.children[vInf.name] = vInf
-        self._writer._oFile.write("$var %s %d %s %s $end\n" % (
-            sigType, vInf.width, vInf.vcdId, vInf.name))
+        self._writer._oFile.write(f"$var {sigType:s} {vInf.width:d} {vInf.vcdId:s} {vInf.name:s} $end\n")
 
     def varScope(self, name):
         """
@@ -113,7 +111,7 @@ class VcdVarWritingScope(VcdVarScope):
             self._writeFooter()
 
     def _writeHeader(self):
-        self._writer._oFile.write("$scope module %s $end\n" % self.name)
+        self._writer._oFile.write(f"$scope module {self.name:s} $end\n")
 
     def _writeFooter(self):
         self._writer._oFile.write("$upscope $end\n")
@@ -124,22 +122,26 @@ class VcdWriter():
     def __init__(self, oFile=sys.stdout):
         self._oFile = oFile
         self._idScope = VcdVarIdScope()
+        self.scopes = []
         self.lastTime = -1
 
     def date(self, text):
-        self._oFile.write("$date\n   %s\n$end\n" % text)
+        d = str(text)
+        self._oFile.write(f"$date\n   {d:s}\n$end\n")
 
     def version(self, text):
-        self._oFile.write("$version   \n%s\n$end\n" % text)
+        self._oFile.write(f"$version   \n{text:s}\n$end\n")
 
     def timescale(self, picoSeconds):
-        self._oFile.write("$timescale %dps $end\n" % picoSeconds)
+        self._oFile.write(f"$timescale {picoSeconds:d}ps $end\n")
 
     def varScope(self, name) -> VcdVarWritingScope:
         """
         Create sub variable scope with defined name
         """
-        return VcdVarWritingScope(name, self, parent=self)
+        s = VcdVarWritingScope(name, self, parent=self)
+        self.scopes.append(s)
+        return s
 
     def enddefinitions(self):
         self._oFile.write("$enddefinitions $end\n")
@@ -150,46 +152,23 @@ class VcdWriter():
             return
         elif lt < t:
             self.lastTime = t
-            self._oFile.write("#%d\n" % (t))
+            self._oFile.write(f"#{t:d}\n")
         else:
-            raise Exception("VcdWriter invalid time update %d -> %d" % (
-                            lt, t))
+            raise Exception(f"VcdWriter invalid time update {lt:d} -> {t:d}")
 
     def logChange(self, time, sig, newVal, valueUpdater):
         self.setTime(time)
         varInfo = self._idScope[sig]
-        v = varInfo.valueFormatter(newVal, valueUpdater)
-        self._oFile.write(v)
+        varInfo.valueFormatter(newVal, valueUpdater, time, self._oFile)
 
 
 if __name__ == "__main__":
     from datetime import datetime
     from pyDigitalWaveTools.vcd.value_format import VcdBitsFormatter
-
-    class MaskedValue():
-
-        def __init__(self, val, vld_mask):
-            self.val = val
-            self.vld_mask = vld_mask
+    from tests.vcdWriter_test import example_dump_values0
 
     vcd = VcdWriter()
     vcd.date(datetime.now())
     vcd.timescale(1)
-    sig0 = "sig0"
-    vect0 = "vect0"
-    sig1 = "sig1"
+    example_dump_values0(vcd, VcdBitsFormatter)
 
-    with vcd.varScope("unit0") as m:
-        m.addVar(sig0, sig0, VCD_SIG_TYPE.WIRE, 1, VcdBitsFormatter)
-        m.addVar(sig1, sig1, VCD_SIG_TYPE.WIRE, 1, VcdBitsFormatter)
-        m.addVar(vect0, vect0, VCD_SIG_TYPE.WIRE, 16, VcdBitsFormatter)
-    vcd.enddefinitions()
-
-    for s in [sig0, sig1, vect0]:
-        vcd.logChange(0, s, MaskedValue(0, 0), None)
-
-    vcd.logChange(1, sig0, MaskedValue(0, 1), None)
-    vcd.logChange(2, sig1, MaskedValue(1, 1), None)
-
-    vcd.logChange(3, vect0, MaskedValue(10, (1 << 16) - 1), None)
-    vcd.logChange(4, vect0, MaskedValue(20, (1 << 16) - 1), None)

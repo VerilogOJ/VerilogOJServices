@@ -14,16 +14,20 @@ Refer to IEEE SystemVerilog standard 1800-2009 for VCD details Section 21.7 Valu
 '''
 
 from collections import defaultdict
+from io import StringIO
 from itertools import dropwhile
+
 from pyDigitalWaveTools.vcd.common import VcdVarScope, VcdVarInfo
+from typing import Union
 
 
 class VcdSyntaxError(Exception):
     pass
 
+
 class VcdDuplicatedVariableError(Exception):
     """
-    This is when multiple definition to one variable happens. 
+    This is when multiple definition to one variable happens.
     E.g.
     $scope module testbench $end
     $var reg 3 ! x [2:0] $end
@@ -34,12 +38,13 @@ class VcdDuplicatedVariableError(Exception):
     """
     pass
 
+
 class VcdVarParsingInfo(VcdVarInfo):
     """
     Container of informations about variable in VCD for parsing of VCD file
     """
 
-    def __init__(self, vcdId, name, width, sigType, parent):
+    def __init__(self, vcdId: Union[str, VcdVarInfo], name: str, width, sigType, parent):
         super(VcdVarParsingInfo, self).__init__(
             vcdId, name, width, sigType, parent)
         self.data = []
@@ -55,6 +60,7 @@ class VcdParser(object):
     '''
     A parser object for VCD files.
     Reads definitions and walks through the value changes
+    https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=954909&tag=1
 
     :ivar ~.keyword_dispatch: dictionary {keyword: parse function}
     :ivar ~.scope: actual VcdSignalInfo
@@ -62,29 +68,34 @@ class VcdParser(object):
     :ivar ~.idcode2series: dictionary {idcode: series} where series are list of tuples (time, value)
     :ivar ~.signals: dict {topName: VcdSignalInfo instance}
     '''
+    VECTOR_VALUE_CHANGE_PREFIX = {
+        "b", "B", "r", "R"
+    }
+    SCOPE_TYPES = {
+        "begin", "fork", "function", "module", "task"
+    }
 
     def __init__(self):
-
         keyword_functions = {
             # declaration_keyword ::=
-            "$comment":        self.drop_declaration,
-            "$date":           self.save_declaration,
+            "$comment": self.drop_while_end,
+            "$date": self.save_declaration,
             "$enddefinitions": self.vcd_enddefinitions,
-            "$scope":          self.vcd_scope,
-            "$timescale":      self.save_declaration,
-            "$upscope":        self.vcd_upscope,
-            "$var":            self.vcd_var,
-            "$version":        self.save_declaration,
+            "$scope": self.vcd_scope,
+            "$timescale": self.save_declaration,
+            "$upscope": self.vcd_upscope,
+            "$var": self.vcd_var,
+            "$version": self.save_declaration,
             # simulation_keyword ::=
-            "$dumpall":        self.vcd_dumpall,
-            "$dumpoff":        self.vcd_dumpoff,
-            "$dumpon":         self.vcd_dumpon,
-            "$dumpvars":       self.vcd_dumpvars,
-            "$end":            self.vcd_end,
+            "$dumpall": self.vcd_dumpall,
+            "$dumpoff": self.vcd_dumpoff,
+            "$dumpon": self.vcd_dumpon,
+            "$dumpvars": self.vcd_dumpvars,
+            "$end": self.vcd_end,
         }
 
         self.keyword_dispatch = defaultdict(
-            self.parse_error, keyword_functions)
+            lambda: self.parse_error, keyword_functions)
 
         # A root scope is used to deal with situations like
         # ------
@@ -97,13 +108,27 @@ class VcdParser(object):
         # $enddefinitions $end
         # ------
         self.scope = VcdVarScope("root", None)
-        self.now = 0
+        self.setNow(0)
         self.idcode2series = {}
         self.end_of_definitions = False
 
-    def value_change(self, vcdId, value):
+    def value_change(self, vcdId, value, lineNo):
         '''append change from VCD file signal data series'''
-        self.idcode2series[vcdId].append((self.now, value))
+        try:    
+            self.idcode2series[vcdId].append((self.now, value))
+        except: 
+            print ("Wrong vcdId @ line", lineNo, ":", vcdId) 
+            pass
+
+    def parse_str(self, vcd_string: str):
+        """
+        Same as :func:`~.parse` just for string
+        """
+        buff = StringIO(vcd_string)
+        return self.parse(buff)
+ 
+    def setNow(self, value):
+        self.now = int(value)  # TODO: can be float
 
     def parse(self, file_handle):
         '''
@@ -113,8 +138,14 @@ class VcdParser(object):
         '''
         # open the VCD file and create a token generator
         lineIterator = iter(enumerate(file_handle))
-        tokeniser = ((lineNo, word) for lineNo, line in lineIterator
+        tokeniser = ((lineNo, word)
+                     for lineNo, line in lineIterator
                      for word in line.split() if word)
+        # def tokeniser_wrap():
+        #    for t in _tokeniser:
+        #        print(t)
+        #        yield t
+        # tokeniser = tokeniser_wrap()
 
         while True:
             token = next(tokeniser)
@@ -125,38 +156,47 @@ class VcdParser(object):
 
         while True:
             try:
-                lineNo, token = next(lineIterator)
+                lineNo, token = next(tokeniser)
             except StopIteration:
                 break
 
             # parse changes
             c = token[0]
             if c == '$':
-                # skip $dump* tokens and $end tokens in sim section
-                continue
+                fn = self.keyword_dispatch[token.strip()]
+                fn(tokeniser, token)
             elif c == '#':
-                # [TODO] may be a float
-                self.now = int(token[1:])
+                self.setNow (token[1:])
             else:
-                sp = token.split()
-                sp_len = len(sp)
-                if sp_len == 1:
-                    # 1 bit value
-                    value = c
-                    vcdId = token[1:]
-                elif sp_len == 2:
-                    # vectors and strings
-                    value, vcdId = sp
-                else:
-                    raise VcdSyntaxError(
-                        "Line %d: Don't understand: %s " % (lineNo, token))
+                self.vcd_value_change(lineNo, token, tokeniser)
 
-                self.value_change(vcdId.strip(), value.strip())
+    def vcd_value_change(self, lineNo, token, tokenizer):
+        token = token.strip()
+        if not token:
+            return
+
+        if token[0] in self.VECTOR_VALUE_CHANGE_PREFIX:
+            # vectors and strings
+            value = token
+            _, vcdId = next(tokenizer)
+        elif token[0] == "s":
+            # string value
+            value = token[1:]
+            _, vcdId = next(tokenizer)
+        elif token[0] == '#': # In many VCD files there is no $end terminator
+            self.setNow(token[1:])
+            return
+        else:
+            # 1 bit value
+            value = token[0]
+            vcdId = token[1:]
+
+        self.value_change(vcdId, value, lineNo)
 
     def parse_error(self, tokeniser, keyword):
         raise VcdSyntaxError("Don't understand keyword: ", keyword)
 
-    def drop_declaration(self, tokeniser, keyword):
+    def drop_while_end(self, tokeniser, keyword):
         next(dropwhile(lambda x: x[1] != "$end", tokeniser))
 
     def read_while_end(self, tokeniser):
@@ -172,22 +212,23 @@ class VcdParser(object):
 
     def vcd_enddefinitions(self, tokeniser, keyword):
         self.end_of_definitions = True
-        self.drop_declaration(tokeniser, keyword)
+        self.drop_while_end(tokeniser, keyword)
 
     def vcd_scope(self, tokeniser, keyword):
         scopeType = next(tokeniser)
-        assert scopeType[1] == "module", scopeType
+        scopeTypeName = scopeType[1]
+        assert scopeTypeName in self.SCOPE_TYPES, scopeType
         scopeName = next(tokeniser)
         assert next(tokeniser)[1] == "$end"
-        if scopeName[1] in self.scope.children:
-            # TODO: handling for cases when both module and var of the same name
-            # exists in one scope
-            assert(isinstance(self.scope.children[scopeName[1]], VcdVarScope))
-            self.scope = self.scope.children[scopeName[1]]
-        else:
-            new_scope = VcdVarScope(scopeName[1], self.scope)
-            self.scope.children[scopeName[1]] = new_scope
-            self.scope = new_scope
+        s = self.scope
+        name = scopeName[1]
+        self.scope = VcdVarScope(name, s)
+        if isinstance(s, VcdVarScope):
+            if name in s.children:
+                self.scope = s.children[name]
+                assert isinstance(self.scope, VcdVarScope), self.scope
+            else:
+                s.children[name] = self.scope
 
     def vcd_upscope(self, tokeniser, keyword):
         self.scope = self.scope.parent
@@ -199,23 +240,76 @@ class VcdParser(object):
         (var_type, size, vcdId, reference) = data[:4]
         parent = self.scope
         size = int(size)
-        info = VcdVarParsingInfo(vcdId, reference, size, var_type, parent)
-        assert vcdId not in self.idcode2series
+        parent_var = self.idcode2series.get(vcdId, None)
+        info = VcdVarParsingInfo(vcdId if parent_var is None else parent_var,
+                                 reference, size, var_type, parent)
         assert reference not in parent.children
         parent.children[reference] = info
-        self.idcode2series[vcdId] = info.data
+        if parent_var is None:
+            self.idcode2series[vcdId] = info.data
+
+    def _vcd_value_change_list(self, tokeniser):
+        while True:
+            try:
+                lineNo, token = next(tokeniser)
+            except StopIteration:
+                break
+            if token and token[0] == "$":
+                if token.startswith("$end"):
+                    return
+                else:
+                    raise VcdSyntaxError(
+                        f"Line {lineNo:d}: Expected $end: {token:s}")
+            else:
+                self.vcd_value_change(lineNo, token, tokeniser)
 
     def vcd_dumpall(self, tokeniser, keyword):
-        pass
+        """
+        specifies current values of all variables dumped
+
+        vcd_simulation_dumpall ::= $dumpall { value_changes } $end
+
+        .. code-block:: verilog
+
+            $dumpall   1*@  x*#   0*$   bx   (k $end
+        """
+        self._vcd_value_change_list(tokeniser)
 
     def vcd_dumpoff(self, tokeniser, keyword):
-        pass
+        """
+        all variables dumped with X values
+
+        vcd_simulation_dumpoff ::= $dumpoff { value_changes } $end
+
+        .. code-block:: verilog
+
+            $dumpoff  x*@  x*#   x*$   bx   (k $end
+        """
+        self._vcd_value_change_list(tokeniser)
 
     def vcd_dumpon(self, tokeniser, keyword):
-        pass
+        """
+        resumption of dumping and lists current values of all variables dumped.
+
+        vcd_simulation_dumpon ::= $dumpon { value_changes } $end
+
+        .. code-block:: verilog
+
+            $dumpon   x*@  0*#   x*$   b1   (k $end
+        """
+        self._vcd_value_change_list(tokeniser)
 
     def vcd_dumpvars(self, tokeniser, keyword):
-        pass
+        """
+        lists initial values of all variables dumped
+
+        vcd_simulation_dumpvars ::= $dumpvars { value_changes } $end
+
+        .. code-block:: verilog
+
+            $dumpvars   x*@   z*$   b0   (k $end
+        """
+        self._vcd_value_change_list(tokeniser)
 
     def vcd_end(self, tokeniser, keyword):
         if not self.end_of_definitions:
