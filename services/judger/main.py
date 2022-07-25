@@ -437,7 +437,7 @@ def judge_student_code(service_request: ServiceRequest):
         capture_output=True,
         shell=True,
     )
-    log += completed_iverilog_reference.stdout.decode("utf-8")
+    log += completed_iverilog_reference.stdout.decode("utf-8");print(log)
     completed_vvp_reference = subprocess.run(
         [f"vvp {simulation_program_reference_path}"],
         capture_output=True,
@@ -488,6 +488,7 @@ def judge_student_code(service_request: ServiceRequest):
 
     # [判断波形图是否一致]
 
+    print(log)
     cmpr = VcdComparator(
         vcd_ref=vcd_reference_path,
         vcd_ut=vcd_student_path,

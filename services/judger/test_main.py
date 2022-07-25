@@ -8,6 +8,38 @@ client = TestClient(app)
 
 
 def test_main():
+#     decoder_reference = """
+# module Zero(
+#     output out
+# );
+#     assign out=0;
+# endmodule
+#     """.strip()
+
+#     decoder_student = """
+# module Zero(
+#     output out
+# );
+#     assign out=0;
+# endmodule
+#     """.strip()
+
+#     testbench = """
+# module testbench();
+#     wire out;
+#     Zero myZero(y);
+
+#     initial begin
+#         $dumpfile(`DUMP_FILE_NAME);
+#         $dumpvars;
+#     end
+
+#     initial begin
+#         #1;
+#     end
+# endmodule
+#     """.strip()
+
     decoder_reference = """
 module decoder(
     input [2:0] x,
@@ -59,7 +91,6 @@ module testbench();
         $dumpvars(0, x, y);
     end
 
-    integer i;
     initial begin
         for (i = 0; i < 8; i = i + 1) begin
             #1 x = i;
