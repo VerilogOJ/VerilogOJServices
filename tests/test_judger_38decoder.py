@@ -51,7 +51,7 @@ module testbench();
     
     initial begin
         $dumpfile(`DUMP_FILE_NAME);
-        $dumpvars(0, x, y);
+        $dumpvars;
     end
 
     integer i;
@@ -90,6 +90,7 @@ endmodule
         print(f'[log] {response["log"]}')
         print(f'[wavejson] {response["wavejson"]}')
     else:
+        print(f"{response_origin.content}")
         print(f"[failed]")
 
         print(f'[error] {response["error"]}')
