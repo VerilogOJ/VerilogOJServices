@@ -44,9 +44,12 @@ endmodule
         print("[SUCCEDDED]")
         response = json.loads(response_origin.content)
 
-        print(f"[log] {response['log']}")
-        print(f"[circuit_svg] {response['circuit_svg']}")
-        print(f"[resources_report] {response['resources_report']}")
+        with open("./temp/circuit_yosys_cmos.svg", "w") as f:
+            f.write(response["circuit_svg"])
+        with open("./temp/circuit_yosys_cmos_log.txt", "w") as f:
+            f.write(response["log"])
+        with open("./temp/circuit_yosys_cmos_report.txt", "w") as f:
+            f.write(response["resources_report"])
 
         with open("./temp/circuit_yosys_cmos.svg", "w") as f:
             f.write(response["circuit_svg"])

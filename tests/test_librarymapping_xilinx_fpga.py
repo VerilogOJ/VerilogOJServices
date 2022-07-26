@@ -50,6 +50,10 @@ endmodule
 
         with open("./temp/circuit_xilinx_fpga.svg", "w") as f:
             f.write(response["circuit_svg"])
+        with open("./temp/circuit_xilinx_fpga_log.txt", "w") as f:
+            f.write(response["log"])
+        with open("./temp/circuit_xilinx_fpga_report.txt", "w") as f:
+            f.write(response["resources_report"])
 
     elif response_origin.status_code == 400:
         print("[FAILED]")

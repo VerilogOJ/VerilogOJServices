@@ -162,15 +162,24 @@ show -notitle -stretch -format svg -prefix {mapping_circuit_svg_path}
     print(log_temp)
 
     # [从yosys的标准输出中正则提取到资源占用情况]
-    def extract_resources_report_from_log(log: str) -> str:
-        result = re.findall(r"2\.26\. Printing statistics\.(.*)2.27", log, flags=re.S)[
-            0
-        ]
-        return result.strip()
 
-    resources_report = extract_resources_report_from_log(
-        completed_yosys.stdout.decode("utf-8")
-    )
+    if service_request.library_type == "xilinx_fpga":
+
+        def extract_resources_report_from_log(log: str) -> str:
+            result = re.findall(
+                r"2\.26\. Printing statistics\.(.*)2.27", log, flags=re.S
+            )[0]
+            return result.strip()
+
+        resources_report = extract_resources_report_from_log(
+            completed_yosys.stdout.decode("utf-8")
+        )
+    elif (
+        service_request.library_type == "google_130nm"
+        or service_request.library_type == "yosys_cmos"
+    ):
+        with open(output_info_path, "r") as f:
+            resources_report = extract_resources_report_from_log(f.read())
 
     # [读取svg并返回]
 
