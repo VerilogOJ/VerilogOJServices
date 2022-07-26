@@ -88,11 +88,34 @@ def convert_verilog_sources_to_library_mapping_circuit(service_request: ServiceR
     # [生成yosys脚本]
 
     mapping_circuit_svg_path = base_path + "mapping_circuit"
-    yosys_script_content = f"""
-    read -sv {" ".join(verilog_sources_path)}
-    synth_xilinx -top {service_request.top_module}
-    show -notitle -stretch -format svg -prefix {mapping_circuit_svg_path}
-    """
+
+    if service_request.library_type == "xilinx_fpga":
+        yosys_script_content = f"""
+read -sv {" ".join(verilog_sources_path)}
+synth_xilinx -top {service_request.top_module}
+show -notitle -stretch -format svg -prefix {mapping_circuit_svg_path}
+        """.strip()
+    elif service_request.library_type == "google_130nm":
+        google_130nm_lib_path = "./sky130_fd_sc_hd__tt_025C_1v80.lib"
+        yosys_script_content = f"""
+read -sv {" ".join(verilog_sources_path)}
+synth -top {service_request.top_module}
+dfflibmap -liberty {google_130nm_lib_path}
+abc -liberty {google_130nm_lib_path}
+clean
+tee -a output/info.txt stat
+show -notitle -stretch -format svg -prefix {mapping_circuit_svg_path}
+        """.strip()
+
+    else:
+        raise HTTPException(
+            status_code=400,
+            detail=ServiceError(
+                error=f"no such library type {service_request.library_type}",
+                log=log,
+            ).json(),
+        )
+
     mapping_circuit_svg_path += ".svg"
     yosys_script_path = base_path + "verilog2mappingcircuit.ys"
     os.makedirs(os.path.dirname(yosys_script_path), exist_ok=True)
@@ -119,7 +142,7 @@ def convert_verilog_sources_to_library_mapping_circuit(service_request: ServiceR
                 log=log,
             ).json(),
         )
-    
+
     log_temp = f"""yosys脚本成功运行"""
     log += log_temp
     print(log_temp)

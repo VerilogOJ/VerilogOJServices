@@ -5,6 +5,7 @@ __pycache__/
 # Project
 temp/
 netlist.svg
+circuit.svg
 
 # My
 playgrounds/

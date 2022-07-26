@@ -35,6 +35,10 @@ endmodule
         print(f"[log] {response['log']}")
         print(f"[circuit_svg] {response['circuit_svg']}")
         print(f"[resources_report] {response['resources_report']}")
+
+        with open("./circuit.svg", "w") as f:
+            f.write(response["circuit_svg"])
+
     elif response_origin.status_code == 400:
         print("[FAILED]")
         response = json.loads(json.loads(response_origin.content)["detail"])
