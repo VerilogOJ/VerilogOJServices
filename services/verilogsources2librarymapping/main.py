@@ -179,7 +179,7 @@ show -notitle -stretch -format svg -prefix {mapping_circuit_svg_path}
         or service_request.library_type == "yosys_cmos"
     ):
         with open(output_info_path, "r") as f:
-            resources_report = extract_resources_report_from_log(f.read())
+            resources_report = f.read().strip()
 
     # [读取svg并返回]
 
