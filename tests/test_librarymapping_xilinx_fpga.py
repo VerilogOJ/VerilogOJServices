@@ -23,7 +23,7 @@ endmodule
     """.strip()
 
     top_module = "decoder"
-    library_type = "google_130nm"
+    library_type = "xilinx_fpga"
 
     request_data = {
         "verilog_sources": [verilog_source],
@@ -48,7 +48,7 @@ endmodule
         print(f"[circuit_svg] {response['circuit_svg']}")
         print(f"[resources_report] {response['resources_report']}")
 
-        with open("./circuit.svg", "w") as f:
+        with open("./temp/circuit_xilinx_fpga.svg", "w") as f:
             f.write(response["circuit_svg"])
 
     elif response_origin.status_code == 400:
