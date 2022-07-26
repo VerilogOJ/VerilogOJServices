@@ -14,10 +14,12 @@ app = FastAPI()
 class ServiceRequest(BaseModel):
     verilog_sources: List[str] = Body(title="Verilog源文件，可以是多文件")
     top_module: str = Body(title="顶层模块的名称")
+    library_type: str = Body(title="使用的元件库名称")  # google_130nm, yosys_ # TODO
 
 
 class ServiceResponse(BaseModel):
-    netlist_svg: str = Body(title="用netlistsvg生成的逻辑电路图")
+    circuit_svg: str = Body(title="生成的元件库映射电路图")
+    resources_report: str = Body(title="资源占用报告")
     log: str = Body(title="过程日志")
 
 
@@ -30,13 +32,13 @@ class ServiceError(BaseModel):
     "/",
     # https://fastapi.tiangolo.com/advanced/additional-responses/
     responses={
-        200: {"model": ServiceResponse, "description": "成功转为svg"},
+        200: {"model": ServiceResponse, "description": "成功生成电路与资源占用报告"},
         400: {"model": ServiceError, "description": "程序内部出错"},
     },
 )
-def convert_verilog_sources_to_netlist_svg(service_request: ServiceRequest):
+def convert_verilog_sources_to_library_mapping_circuit(service_request: ServiceRequest):
     """
-    上传Verilog源文件并指定顶层模块，返回逻辑电路图svg
+    上传Verilog源文件并指定使用的元件库（和顶层模块），生成电路图和资源占用报告。
     """
 
     print(f"start with request {service_request}")
