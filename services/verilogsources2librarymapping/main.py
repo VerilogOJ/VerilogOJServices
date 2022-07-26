@@ -15,7 +15,9 @@ app = FastAPI()
 class ServiceRequest(BaseModel):
     verilog_sources: List[str] = Body(title="Verilog源文件，可以是多文件")
     top_module: str = Body(title="顶层模块的名称")
-    library_type: str = Body(title="使用的元件库名称")  # google_130nm, yosys_ # TODO
+    library_type: str = Body(
+        title="使用的元件库名称 目前支持`yosys_cmos` `google_130nm` `xilinx_fpga`"
+    )
 
 
 class ServiceResponse(BaseModel):
@@ -120,7 +122,6 @@ clean
 tee -a {output_info_path} stat
 show -notitle -stretch -format svg -prefix {mapping_circuit_svg_path}
         """.strip()
-
     else:
         raise HTTPException(
             status_code=400,
@@ -182,6 +183,9 @@ show -notitle -stretch -format svg -prefix {mapping_circuit_svg_path}
             resources_report = f.read().strip()
     else:
         resources_report = ""
+    log_temp = f"""资源报告已提取\n"""
+    log += log_temp
+    print(log_temp)
 
     # [读取svg并返回]
 
