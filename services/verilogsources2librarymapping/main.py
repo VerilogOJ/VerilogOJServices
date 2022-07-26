@@ -109,6 +109,7 @@ show -notitle -stretch -format svg -prefix {mapping_circuit_svg_path}
         """.strip()
         # TODO 从 output_info_path 中正则提取到资源占用情况
     elif service_request.library_type == "yosys_cmos":
+        output_info_path = base_path + "info.txt"
         yosys_cmos_lib_path = "./lib/cmos_cells.lib"
         yosys_script_content = f"""
 read -sv {" ".join(verilog_sources_path)}

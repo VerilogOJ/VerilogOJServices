@@ -48,7 +48,7 @@ endmodule
         print(f"[circuit_svg] {response['circuit_svg']}")
         print(f"[resources_report] {response['resources_report']}")
 
-        with open("./temp/circuit_xilinx_fpga.svg", "w") as f:
+        with open("./temp/circuit_yosys_cmos.svg", "w") as f:
             f.write(response["circuit_svg"])
 
     elif response_origin.status_code == 400:
