@@ -37,12 +37,12 @@ class ServiceError(BaseModel):
     },
 )
 def convert_verilog_sources_to_library_mapping_circuit(service_request: ServiceRequest):
-    """
-    上传Verilog源文件并指定使用的元件库（和顶层模块），生成电路图和资源占用报告。
-    """
+    """上传Verilog源文件并指定使用的元件库（和顶层模块），生成电路图和资源占用报告。"""
 
-    print(f"start with request {service_request}")
-    log = "开始处理" + datetime.now().strftime("%Y/%m/%d, %H:%M:%S")
+    log_temp = f"""开始处理 {datetime.now().strftime("%Y/%m/%d, %H:%M:%S")}
+请求：{service_request}"""
+    log = log_temp
+    print(log_temp)
 
     # [判断宿主机程序存在]
 
@@ -57,11 +57,9 @@ def convert_verilog_sources_to_library_mapping_circuit(service_request: ServiceR
             status_code=404,
             detail=ServiceError(error="yosys not installed", log=log).json(),
         )
-    if not program_exists("netlistsvg"):
-        raise HTTPException(
-            status_code=404,
-            detail=ServiceError(error="netlistsvg not installed", log=log).json(),
-        )
+    log_temp = f"""仿真软件已安装"""
+    log += log_temp
+    print(log_temp)
 
     # [保存用户上传的verilog源文件]
 
@@ -83,19 +81,27 @@ def convert_verilog_sources_to_library_mapping_circuit(service_request: ServiceR
         with open(verilog_source_path, "w") as f:
             f.write(verilog_source)
 
+    log_temp = f"""Verilog源文件已保存"""
+    log += log_temp
+    print(log_temp)
+
     # [生成yosys脚本]
 
-    netlist_json_path = base_path + "netlist.json"
+    mapping_circuit_svg_path = base_path + "mapping_circuit"
     yosys_script_content = f"""
     read -sv {" ".join(verilog_sources_path)}
-    hierarchy -top {service_request.top_module}
-    proc; opt; techmap; opt
-    write_json {netlist_json_path}
+    synth_xilinx -top {service_request.top_module}
+    show -notitle -stretch -format svg -prefix {mapping_circuit_svg_path}
     """
-    yosys_script_path = base_path + "verilog2netlistsvg.ys"
+    mapping_circuit_svg_path += ".svg"
+    yosys_script_path = base_path + "verilog2mappingcircuit.ys"
     os.makedirs(os.path.dirname(yosys_script_path), exist_ok=True)
     with open(yosys_script_path, "w") as f:
         f.write(yosys_script_content)
+
+    log_temp = f"""yosys脚本已生成"""
+    log += log_temp
+    print(log_temp)
 
     # [运行yosys脚本]
 
@@ -109,30 +115,19 @@ def convert_verilog_sources_to_library_mapping_circuit(service_request: ServiceR
         raise HTTPException(
             status_code=400,
             detail=ServiceError(
-                error=f"run yosys failed {completed_yosys.stderr.decode('utf-8')}",
+                error=f"run yosys failed\n{completed_yosys.stderr.decode('utf-8')}",
                 log=log,
             ).json(),
         )
+    
+    log_temp = f"""yosys脚本成功运行"""
+    log += log_temp
+    print(log_temp)
 
-    # [运行netlistsvg]
+    # [读取svg并返回]
 
-    netlist_svg_path = base_path + "netlist.svg"
-    completed_netlistsvg = subprocess.run(
-        ["netlistsvg", netlist_json_path, "-o", netlist_svg_path],
-        capture_output=True,
+    with open(mapping_circuit_svg_path, "r") as f:
+        mapping_circuit_svg_content = f.read()
+    return ServiceResponse(
+        circuit_svg=mapping_circuit_svg_content, resources_report="...TODO...", log=log
     )
-    log += completed_netlistsvg.stdout.decode("utf-8")
-    if completed_netlistsvg.returncode != 0:
-        raise HTTPException(
-            status_code=400,
-            detail=ServiceError(
-                error=f"run netlistsvg failed {completed_netlistsvg.stderr.decode('utf-8')}",
-                log=log,
-            ).json(),
-        )
-
-    # [读取netlist.svg并返回]
-
-    with open(netlist_svg_path, "r") as f:
-        netlist_svg_content = f.read()
-    return ServiceResponse(log=log, netlist_svg=netlist_svg_content)
