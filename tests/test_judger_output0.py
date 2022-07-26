@@ -9,7 +9,7 @@ module Zero(
 );
     assign out=0;
 endmodule
-    """.strip()
+    """
 
     code_student = """
 module Zero(
@@ -17,7 +17,7 @@ module Zero(
 );
     assign out=0;
 endmodule
-    """.strip()
+    """
 
     testbench = """
 module testbench();
@@ -33,7 +33,7 @@ module testbench();
         #1;
     end
 endmodule
-    """.strip()
+    """
 
     request_data = {
         "code_reference": code_reference,
@@ -53,19 +53,23 @@ endmodule
     print("[request ended]")
 
     print(f"[status_code] {response_origin.status_code}")
-    response = json.loads(response_origin.content)
 
     if response_origin.status_code == 200:
-        print(f"[successed]")
+        print(f"[SUCCEDDED]")
+        response = json.loads(response_origin.content)
 
         print(f'[is_correct] {response["is_correct"]}')
         print(f'[log] {response["log"]}')
         print(f'[wavejson] {response["wavejson"]}')
-    else:
-        print(f"[failed]")
-        print(f"{response_origin.content}")
+    elif response_origin.status_code == 400:
+        print(f"[FAILED]")
+        response = json.loads(json.loads(response_origin.content)["detail"])
 
         print(f'[error] {response["error"]}')
         print(f'[log] {response["log"]}')
+    else:
+        print(f"[FAILED]")
+
+        print("[error]" + json.loads(response_origin.content))
 
     assert response_origin.status_code == 200

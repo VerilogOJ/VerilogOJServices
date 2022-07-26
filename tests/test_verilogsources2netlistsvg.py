@@ -23,17 +23,20 @@ def test_single_file():
     print("[request ended]")
 
     print(f"[status_code] {response_origin.status_code}")
-    response = json.loads(response_origin.content)
 
     if response_origin.status_code == 200:
-        print(f"[successed]")
+        print(f"[SUCCEDDED]")
+        response = json.loads(response_origin.content)
 
         print(f'[log] {response["log"]}')
         print(f'[svg] {response["netlist_svg"]}')
-    else:
-        print(f"[failed]")
+    elif response_origin.status_code == 400:
+        print(f"[FAILED]")
+        response = json.loads(json.loads(response_origin.content)["detail"])
 
         print(f'[error] {response["error"]}')
         print(f'[log] {response["log"]}')
+    else:
+        print(f"[FAILED]")
 
     assert response_origin.status_code == 200

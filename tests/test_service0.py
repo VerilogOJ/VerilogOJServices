@@ -14,15 +14,19 @@ def test_get():
     print("[request ended]")
 
     print(f"[status_code] {response_origin.status_code}")
-    response = json.loads(response_origin.content)
 
     if response_origin.status_code == 200:
-        print(f"[successed]")
+        print(f"[SUCCEDDED]")
+        response = json.loads(response_origin.content)
 
         print(f'[service_id] {response["service_id"]}')
-    else:
-        print(f"[failed]")
+    elif response_origin.status_code == 400:
+        print(f"[FAILED]")
+        response = json.loads(json.loads(response_origin.content)["detail"])
 
-        print(f"[response] {response}")
+        print(f'[error] {response["error"]}')
+        print(f'[log] {response["log"]}')
+    else:
+        print(f"[FAILED]")
 
     assert response_origin.status_code == 200
