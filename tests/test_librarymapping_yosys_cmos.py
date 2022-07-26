@@ -1,8 +1,7 @@
 import requests  # https://requests.readthedocs.io/en/latest/
 import json
 
-
-def test_single_file():
+def test_read_main():
     verilog_source = """
 module decoder(
     input [2:0] x,
@@ -22,36 +21,44 @@ module decoder(
     end
 endmodule
     """.strip()
+
     top_module = "decoder"
-    request_data = {"verilog_sources": [verilog_source], "top_module": top_module}
+    library_type = "yosys_cmos"
+
+    request_data = {
+        "verilog_sources": [verilog_source],
+        "top_module": top_module,
+        "library_type": library_type,
+    }
     url = "http://166.111.223.67:1234"
 
     print("[request started]")
     response_origin = requests.post(
         url=url,
         data=json.dumps(request_data),
-        headers={"Host": "verilogojservices.verilogsources2netlistsvg"},
+        headers={"Host": "verilogojservices.verilogsources2librarymapping"},
     )
     print("[request ended]")
 
-    print(f"[status_code] {response_origin.status_code}")
-
     if response_origin.status_code == 200:
-        print(f"[SUCCEDDED]")
+        print("[SUCCEDDED]")
         response = json.loads(response_origin.content)
 
-        print(f'[log] {response["log"]}')
-        print(f'[svg] {response["netlist_svg"]}')
+        print(f"[log] {response['log']}")
+        print(f"[circuit_svg] {response['circuit_svg']}")
+        print(f"[resources_report] {response['resources_report']}")
 
-        with open("./temp/netlist.svg", "w") as f:
-            f.write(response["netlist_svg"])
+        with open("./temp/circuit_xilinx_fpga.svg", "w") as f:
+            f.write(response["circuit_svg"])
+
     elif response_origin.status_code == 400:
-        print(f"[FAILED]")
+        print("[FAILED]")
         response = json.loads(json.loads(response_origin.content)["detail"])
 
-        print(f'[error] {response["error"]}')
-        print(f'[log] {response["log"]}')
+        print(f"[log] {response['log']}")
+        print(f"[error] {response['error']}")
     else:
-        print(f"[FAILED]")
+        print("[FAILED]")
+        print(json.loads(response_origin.content))
 
     assert response_origin.status_code == 200

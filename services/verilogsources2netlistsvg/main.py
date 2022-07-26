@@ -114,6 +114,7 @@ write_json {netlist_json_path}
 
     netlist_svg_path = base_path + "netlist.svg"
     completed_netlistsvg = subprocess.run(
+        # https://github.com/nturley/netlistsvg#generating-input_json_file-with-yosys
         ["netlistsvg", netlist_json_path, "-o", netlist_svg_path],
         capture_output=True,
     )
