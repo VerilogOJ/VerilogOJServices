@@ -50,6 +50,8 @@ endmodule
 
         with open("./temp/circuit_google_130nm.svg", "w") as f:
             f.write(response["circuit_svg"])
+        with open("./temp/circuit_google_130nm.log", "w") as f:
+            f.write(response["log"])
 
     elif response_origin.status_code == 400:
         print("[FAILED]")

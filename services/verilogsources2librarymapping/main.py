@@ -2,6 +2,7 @@ from typing import Union, List
 import subprocess
 import os
 import uuid
+import re
 from datetime import datetime
 
 from fastapi import FastAPI, Body, HTTPException
@@ -107,7 +108,6 @@ clean
 tee -a {output_info_path} stat
 show -notitle -stretch -format svg -prefix {mapping_circuit_svg_path}
         """.strip()
-        # TODO 从 output_info_path 中正则提取到资源占用情况
     elif service_request.library_type == "yosys_cmos":
         output_info_path = base_path + "info.txt"
         yosys_cmos_lib_path = "./lib/cmos_cells.lib"
@@ -161,10 +161,23 @@ show -notitle -stretch -format svg -prefix {mapping_circuit_svg_path}
     log += log_temp
     print(log_temp)
 
+    # [从yosys的标准输出中正则提取到资源占用情况]
+    def extract_resources_report_from_log(log: str) -> str:
+        result = re.findall(r"2\.26\. Printing statistics\.(.*)2.27", log, flags=re.S)[
+            0
+        ]
+        return result.strip()
+
+    resources_report = extract_resources_report_from_log(
+        completed_yosys.stdout.decode("utf-8")
+    )
+
     # [读取svg并返回]
 
     with open(mapping_circuit_svg_path, "r") as f:
         mapping_circuit_svg_content = f.read()
     return ServiceResponse(
-        circuit_svg=mapping_circuit_svg_content, resources_report="...TODO...", log=log
+        circuit_svg=mapping_circuit_svg_content,
+        resources_report=resources_report,
+        log=log,
     )
