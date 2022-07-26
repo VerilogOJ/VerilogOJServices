@@ -56,17 +56,17 @@ services:
     depends_on:
       - nginx-proxy
 
-    service3:
-      build:
-        context: ./services/${service3_name}
-        dockerfile: Dockerfile
-      image: ${services_namespace}_${service3_name}:v1
-      container_name: ${services_namespace}_${service3_name}
-      
-      expose:
-        - "80"
-      environment:
-        - VIRTUAL_HOST=${services_namespace}.${service3_name}
-        - VIRTUAL_PORT=80
-      depends_on:
-        - nginx-proxy
+  service3:
+    build:
+      context: ./services/${service3_name}
+      dockerfile: Dockerfile
+    image: ${services_namespace}_${service3_name}:v1
+    container_name: ${services_namespace}_${service3_name}
+    
+    expose:
+      - "80"
+    environment:
+      - VIRTUAL_HOST=${services_namespace}.${service3_name}
+      - VIRTUAL_PORT=80
+    depends_on:
+      - nginx-proxy
