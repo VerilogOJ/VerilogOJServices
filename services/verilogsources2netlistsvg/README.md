@@ -36,7 +36,3 @@ test_main.py .                         [100%]
 
 - 注：项目没有`__init__.py`会使得`pytest`报错。
 - 参考：https://fastapi.tiangolo.com/tutorial/testing/?h=test
-
-## 部署
-
-请使用项目根目录下的`docker-compose.yml`部署
