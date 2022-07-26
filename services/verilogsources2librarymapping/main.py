@@ -96,6 +96,7 @@ synth_xilinx -top {service_request.top_module}
 show -notitle -stretch -format svg -prefix {mapping_circuit_svg_path}
         """.strip()
     elif service_request.library_type == "google_130nm":
+        output_info_path = base_path + "info.txt"
         google_130nm_lib_path = "./sky130_fd_sc_hd__tt_025C_1v80.lib"
         yosys_script_content = f"""
 read -sv {" ".join(verilog_sources_path)}
@@ -103,9 +104,10 @@ synth -top {service_request.top_module}
 dfflibmap -liberty {google_130nm_lib_path}
 abc -liberty {google_130nm_lib_path}
 clean
-tee -a output/info.txt stat
+tee -a {output_info_path} stat
 show -notitle -stretch -format svg -prefix {mapping_circuit_svg_path}
         """.strip()
+        # TODO 从 output_info_path 中正则提取到资源占用情况
 
     else:
         raise HTTPException(
