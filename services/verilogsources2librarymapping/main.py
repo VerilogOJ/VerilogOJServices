@@ -105,8 +105,7 @@ dfflibmap -liberty {google_130nm_lib_path}
 abc -liberty {google_130nm_lib_path}
 clean
 tee -a {output_info_path} stat
-# show -notitle -stretch -format svg -prefix {mapping_circuit_svg_path}
-show -long -format svg -prefix {mapping_circuit_svg_path}
+show -notitle -stretch -format svg -prefix {mapping_circuit_svg_path}
         """.strip()
         # TODO 从 output_info_path 中正则提取到资源占用情况
 
