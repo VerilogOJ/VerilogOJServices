@@ -35,9 +35,7 @@ class ServiceError(BaseModel):
     },
 )
 def convert_verilog_sources_to_netlist_svg(service_request: ServiceRequest):
-    """
-    上传Verilog源文件并指定顶层模块，返回逻辑电路图svg
-    """
+    """上传Verilog源文件并指定顶层模块，返回逻辑电路图svg"""
 
     print(f"start with request {service_request}")
     log = "开始处理" + datetime.now().strftime("%Y/%m/%d, %H:%M:%S")
@@ -85,11 +83,11 @@ def convert_verilog_sources_to_netlist_svg(service_request: ServiceRequest):
 
     netlist_json_path = base_path + "netlist.json"
     yosys_script_content = f"""
-    read -sv {" ".join(verilog_sources_path)}
-    hierarchy -top {service_request.top_module}
-    proc; opt; techmap; opt
-    write_json {netlist_json_path}
-    """
+read -sv {" ".join(verilog_sources_path)}
+hierarchy -top {service_request.top_module}
+proc; opt; techmap; opt
+write_json {netlist_json_path}
+    """.strip()
     yosys_script_path = base_path + "verilog2netlistsvg.ys"
     os.makedirs(os.path.dirname(yosys_script_path), exist_ok=True)
     with open(yosys_script_path, "w") as f:
