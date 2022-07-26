@@ -41,7 +41,7 @@ def convert_verilog_sources_to_library_mapping_circuit(service_request: ServiceR
     """上传Verilog源文件并指定使用的元件库（和顶层模块），生成电路图和资源占用报告。"""
 
     log_temp = f"""开始处理 {datetime.now().strftime("%Y/%m/%d, %H:%M:%S")}
-请求：{service_request}"""
+请求：{service_request}\n"""
     log = log_temp
     print(log_temp)
 
@@ -58,7 +58,7 @@ def convert_verilog_sources_to_library_mapping_circuit(service_request: ServiceR
             status_code=404,
             detail=ServiceError(error="yosys not installed", log=log).json(),
         )
-    log_temp = f"""仿真软件已安装"""
+    log_temp = f"""仿真软件已安装\n"""
     log += log_temp
     print(log_temp)
 
@@ -82,7 +82,7 @@ def convert_verilog_sources_to_library_mapping_circuit(service_request: ServiceR
         with open(verilog_source_path, "w") as f:
             f.write(verilog_source)
 
-    log_temp = f"""Verilog源文件已保存"""
+    log_temp = f"""Verilog源文件已保存\n"""
     log += log_temp
     print(log_temp)
 
@@ -136,7 +136,7 @@ show -notitle -stretch -format svg -prefix {mapping_circuit_svg_path}
     with open(yosys_script_path, "w") as f:
         f.write(yosys_script_content)
 
-    log_temp = f"""yosys脚本已生成"""
+    log_temp = f"""yosys脚本已生成\n"""
     log += log_temp
     print(log_temp)
 
@@ -157,7 +157,7 @@ show -notitle -stretch -format svg -prefix {mapping_circuit_svg_path}
             ).json(),
         )
 
-    log_temp = f"""yosys脚本成功运行"""
+    log_temp = f"""yosys脚本成功运行\n"""
     log += log_temp
     print(log_temp)
 
@@ -180,6 +180,8 @@ show -notitle -stretch -format svg -prefix {mapping_circuit_svg_path}
     ):
         with open(output_info_path, "r") as f:
             resources_report = f.read().strip()
+    else:
+        resources_report = ""
 
     # [读取svg并返回]
 

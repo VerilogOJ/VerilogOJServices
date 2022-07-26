@@ -362,7 +362,7 @@ def judge_student_code(service_request: ServiceRequest):
     """上传学生的Verilog代码、答案、testbench并指定顶层模块，返回判题结果和信号波形图"""
 
     log_temp = f"""开始处理 {datetime.now().strftime("%Y/%m/%d, %H:%M:%S")}
-请求: {service_request}"""
+请求: {service_request}\n"""
     log = log_temp
     print(log_temp)
 
@@ -385,7 +385,7 @@ def judge_student_code(service_request: ServiceRequest):
             detail=ServiceError(error="iverilog not installed", log=log).json(),
         )
 
-    log_temp = f"""仿真软件已安装"""
+    log_temp = f"""仿真软件已安装\n"""
     log += log_temp
     print(log_temp)
 
@@ -428,7 +428,7 @@ def judge_student_code(service_request: ServiceRequest):
     with open(testbench_path, "w") as f:
         f.write(service_request.testbench)
 
-    log_temp = f"""提交文件已保存"""
+    log_temp = f"""提交文件已保存\n"""
     log += log_temp
     print(log_temp)
 
@@ -466,7 +466,7 @@ def judge_student_code(service_request: ServiceRequest):
             ).json(),
         )
 
-    log_temp = f"""参考代码仿真结束"""
+    log_temp = f"""参考代码仿真结束\n"""
     log += log_temp
     print(log_temp)
 
@@ -500,7 +500,7 @@ def judge_student_code(service_request: ServiceRequest):
             ).json(),
         )
 
-    log_temp = f"""学生代码仿真结束"""
+    log_temp = f"""学生代码仿真结束\n"""
     log += log_temp
     print(log_temp)
 
@@ -519,7 +519,7 @@ def judge_student_code(service_request: ServiceRequest):
     is_correct = ret
     log += msg
 
-    log_temp = f"""波形已比较：{"一致" if is_correct else "不一致"}"""
+    log_temp = f"""波形已比较：{"一致" if is_correct else "不一致"}\n"""
     log += log_temp
     print(log_temp)
 
@@ -531,11 +531,11 @@ def judge_student_code(service_request: ServiceRequest):
         signal_names=service_request.signal_names,
     )
 
-    log_temp = f"""波形图已生成"""
+    log_temp = f"""波形图已生成\n"""
     log += log_temp
     print(log_temp)
 
-    log_temp = f"""判题结束"""
+    log_temp = f"""判题结束\n"""
     log += log_temp
     print(log_temp)
 

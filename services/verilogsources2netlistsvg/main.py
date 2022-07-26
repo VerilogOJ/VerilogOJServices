@@ -105,7 +105,7 @@ write_json {netlist_json_path}
         raise HTTPException(
             status_code=400,
             detail=ServiceError(
-                error=f"run yosys failed {completed_yosys.stderr.decode('utf-8')}",
+                error=f"run yosys failed\n{completed_yosys.stderr.decode('utf-8')}",
                 log=log,
             ).json(),
         )
