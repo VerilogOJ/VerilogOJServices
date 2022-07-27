@@ -78,3 +78,8 @@ sudo docker logs <container_id>
 ```
 
 查看部署中的错误。
+
+## Open Source Projects
+
+- [YAVGroup/Verilog-OJ](https://github.com/YAVGroup/Verilog-OJ) [AGPL-3.0 license](https://github.com/YAVGroup/Verilog-OJ/blob/master/LICENSE)
+- [Nic30/pyDigitalWaveTools](https://github.com/Nic30/pyDigitalWaveTools) [MIT license](https://github.com/Nic30/pyDigitalWaveTools/blob/master/LICENSE)
