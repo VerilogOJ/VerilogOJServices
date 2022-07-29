@@ -176,7 +176,60 @@ write_json {yosys_json_path}
     with open(circuit_bad_svg_path, "r") as f:
         circuit_bad_svg_content = f.read()
 
+    # [生成OpenSTA脚本]
 
+    sdf_path = base_path + "sta.sdf"
+    google_130nm_lib_path = "./lib/sky130_fd_sc_hd__tt_025C_1v80.lib"
+    opensta_script_content = f"""
+read_liberty {google_130nm_lib_path}
+read_verilog {yosys_verilog_path}
+link_design inverter
+
+create_clock -name clk -period 10
+set_input_delay -clock clk 0 {{*}}
+set_output_delay -clock clk 0 {{*}}
+
+report_checks
+write_sdf {sdf_path}
+    """.strip()
+
+    opensta_script_path = base_path + "sta.txt"
+    os.makedirs(os.path.dirname(opensta_script_path), exist_ok=True)
+    with open(opensta_script_path, "w") as f:
+        f.write(opensta_script_content)
+
+    log_temp = f"""OpenSTA脚本已生成\n"""
+    log += log_temp
+    print(log_temp)
+
+    # [执行OpenSTA脚本]
+
+    completed_sta = subprocess.run(
+        [f"sta -no_splash -exit {opensta_script_path}"],
+        capture_output=True,
+        shell=True,
+    )  # https://docs.python.org/3/library/subprocess.html#subprocess.run
+    log += completed_sta.stdout.decode("utf-8")
+    if completed_sta.returncode != 0:
+        raise HTTPException(
+            status_code=400,
+            detail=ServiceError(
+                error=f"run sta failed\n{completed_sta.stderr.decode('utf-8')}",
+                log=log,
+            ).json(),
+        )
+
+    log_temp = f"""OpenSTA脚本成功运行\n"""
+    log += log_temp
+    print(log_temp)
+
+    # [拿到sta分析结果]
+
+    sta_report = completed_sta.stdout.decode("utf-8")
+
+    log_temp = f"""取得时序分析结果\n"""
+    log += log_temp
+    print(log_temp)
 
     return ServiceResponse(
         log=log,
@@ -184,6 +237,6 @@ write_json {yosys_json_path}
         resources_report=resources_report,
         circuit_bad_svg=circuit_bad_svg_content,
         circuit_good_svg="TODO",
-        sta_report="TODO",
+        sta_report=sta_report,
         simulation_wavejson="TODO"
     )
