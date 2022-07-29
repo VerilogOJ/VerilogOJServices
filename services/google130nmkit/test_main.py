@@ -17,11 +17,34 @@ module inverter(in, out);
 endmodule
     """.strip()
 
+    testbench = """
+`timescale 1ns / 1ps
+
+module testbench();
+    reg in;
+    wire out;
+    inverter inverter(in, out);
+
+    initial begin
+        $dumpfile(`DUMP_FILE_NAME);
+        $dumpvars;
+    end
+
+    initial begin
+        in = 0; #1
+        in = 1; #1 
+        in = 0; #1 
+        $finish;
+    end
+endmodule
+    """.strip()
+
     top_module = "inverter"
 
     service_request = {
         "verilog_sources": [verilog_source],
-        "top_module": top_module
+        "top_module": top_module,
+        "testbench": testbench,
     }
     response_origin = client.post("/", json=service_request)
     print(f"[response.status_code] {response_origin.status_code}")
