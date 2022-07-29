@@ -21,8 +21,7 @@ class ServiceResponse(BaseModel):
     log: str = Body(title="过程日志")
 
     resources_report: str = Body(title="资源占用报告")
-    circuit_bad_svg: str = Body(title="生成的元件库映射电路图（未优化）")
-    circuit_good_svg: str = Body(title="生成的元件库映射电路图（已优化）")
+    circuit_svg: str = Body(title="生成的元件库映射电路图（未优化）")
     sta_report: str = Body(title="时序分析报告")
     simulation_wavejson: str = Body(title="用Google130nm元件库映射后仿真得到的WaveJSON")
 
@@ -118,20 +117,20 @@ def get_google130nm_analysis(service_request: ServiceRequest):
     output_info_path = base_path + "info.txt"
     google_130nm_lib_path = "./lib/sky130_fd_sc_hd__tt_025C_1v80.lib"
 
-    circuit_bad_svg_path = base_path + "circuit_bad"
+    circuit_svg_path = base_path + "circuit_bad"
     yosys_verilog_path = base_path + "module.v"
     yosys_json_path = base_path + "module.json"
     yosys_script_content = f"""
 read -sv {" ".join(verilog_sources_path)}
 synth -top {service_request.top_module}
-dfflibmap -liberty {google_130nm_lib_path}
+read_liberty -lib {google_130nm_lib_path}
 abc -liberty {google_130nm_lib_path}
 tee -a {output_info_path} stat
-show -notitle -stretch -format svg -prefix {circuit_bad_svg_path}
+show -notitle -stretch -format svg -prefix {circuit_svg_path}
 write_verilog {yosys_verilog_path}
 write_json {yosys_json_path}
     """.strip()
-    circuit_bad_svg_path += ".svg"
+    circuit_svg_path += ".svg"
 
     yosys_script_path = base_path + "synth.ys"
     os.makedirs(os.path.dirname(yosys_script_path), exist_ok=True)
@@ -173,7 +172,7 @@ write_json {yosys_json_path}
 
     # [读取yosys`show`命令得到的svg]
 
-    with open(circuit_bad_svg_path, "r") as f:
+    with open(circuit_svg_path, "r") as f:
         circuit_bad_svg_content = f.read()
 
     # [生成OpenSTA脚本]
@@ -235,8 +234,7 @@ write_sdf {sdf_path}
         log=log,
 
         resources_report=resources_report,
-        circuit_bad_svg=circuit_bad_svg_content,
-        circuit_good_svg="TODO",
+        circuit_svg=circuit_bad_svg_content,
         sta_report=sta_report,
-        simulation_wavejson="TODO"
+        simulation_wavejson="TODO 用iverilog和vvp 跑 Google130nm的.v、yosys生成的.v、sta生成的sdf 拿到仿真结果"
     )

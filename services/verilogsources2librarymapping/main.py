@@ -104,7 +104,7 @@ show -notitle -stretch -format svg -prefix {mapping_circuit_svg_path}
         yosys_script_content = f"""
 read -sv {" ".join(verilog_sources_path)}
 synth -top {service_request.top_module}
-dfflibmap -liberty {google_130nm_lib_path}
+read_liberty -lib {google_130nm_lib_path}
 abc -liberty {google_130nm_lib_path}
 clean
 tee -a {output_info_path} stat
@@ -116,7 +116,7 @@ show -notitle -stretch -format svg -prefix {mapping_circuit_svg_path}
         yosys_script_content = f"""
 read -sv {" ".join(verilog_sources_path)}
 synth -top {service_request.top_module}
-dfflibmap -liberty {yosys_cmos_lib_path}
+read_liberty -lib {yosys_cmos_lib_path}
 abc -liberty {yosys_cmos_lib_path}
 clean
 tee -a {output_info_path} stat

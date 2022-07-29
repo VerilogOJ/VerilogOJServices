@@ -32,13 +32,13 @@ endmodule
 
         print(f"[log]\n{response['log']}")
         print(f"[resources_report]\n{response['resources_report']}")
-        print(f"[circuit_bad_svg]\n{response['circuit_bad_svg']}")
+        print(f"[circuit_svg]\n{response['circuit_svg']}")
         print(f"[circuit_good_svg]\n{response['circuit_good_svg']}")
         print(f"[sta_report]\n{response['sta_report']}")
         print(f"[simulation_wavejson]\n{response['simulation_wavejson']}")
 
-        with open("./temp/circuit_bad.svg", "w") as f:
-            f.write(response["circuit_bad_svg"])
+        with open("./temp/circuit.svg", "w") as f:
+            f.write(response["circuit_svg"])
 
     elif response_origin.status_code == 400:
         print("[FAILED]")
