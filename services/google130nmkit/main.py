@@ -184,7 +184,32 @@ write_json {yosys_json_path}
     with open(circuit_svg_path, "r") as f:
         circuit_svg_content = f.read()
 
-    
+        netlist_svg_path = base_path + "netlist.svg"
+    completed_netlistsvg = subprocess.run(
+        # https://github.com/nturley/netlistsvg#generating-input_json_file-with-yosys
+        ["netlistsvg", yosys_json_path, "-o", netlist_svg_path],
+        capture_output=True,
+    )
+    log += completed_netlistsvg.stdout.decode("utf-8")
+    if completed_netlistsvg.returncode != 0:
+        raise HTTPException(
+            status_code=400,
+            detail=ServiceError(
+                error=f"run netlistsvg failed {completed_netlistsvg.stderr.decode('utf-8')}",
+                log=log,
+            ).json(),
+        )
+    log_temp = f"""netlistsvg已生成\n"""
+    log += log_temp
+    print(log_temp)
+
+    # [读取netlistsvg]
+
+    with open(netlist_svg_path, "r") as f:
+        circuit_netlistsvg_content = f.read()
+    log_temp = f"""netlistsvg已提取\n"""
+    log += log_temp
+    print(log_temp)
 
     # [生成OpenSTA脚本]
 
