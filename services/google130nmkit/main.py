@@ -23,9 +23,8 @@ class ServiceResponse(BaseModel):
     resources_report: str = Body(title="资源占用报告")
     circuit_bad_svg: str = Body(title="生成的元件库映射电路图（未优化）")
     circuit_good_svg: str = Body(title="生成的元件库映射电路图（已优化）")
-    simulation_logic_wavejson: str = Body(title="逻辑仿真得到的WaveJSON")
-    sta_report: str = Body(title="时序分析结构")
-    simulation_google130nm_wavejson: str = Body(title="用Google130nm元件库后逻辑仿真得到的WaveJSON")
+    sta_report: str = Body(title="时序分析报告")
+    simulation_wavejson: str = Body(title="用Google130nm元件库映射后仿真得到的WaveJSON")
 
 
 class ServiceError(BaseModel):
@@ -120,18 +119,21 @@ def get_google130nm_analysis(service_request: ServiceRequest):
     google_130nm_lib_path = "./lib/sky130_fd_sc_hd__tt_025C_1v80.lib"
 
     circuit_bad_svg_path = base_path + "circuit_bad"
+    yosys_verilog_path = base_path + "module.v"
+    yosys_json_path = base_path + "module.json"
     yosys_script_content = f"""
 read -sv {" ".join(verilog_sources_path)}
 synth -top {service_request.top_module}
 dfflibmap -liberty {google_130nm_lib_path}
 abc -liberty {google_130nm_lib_path}
-clean
 tee -a {output_info_path} stat
 show -notitle -stretch -format svg -prefix {circuit_bad_svg_path}
+write_verilog {yosys_verilog_path}
+write_json {yosys_json_path}
     """.strip()
     circuit_bad_svg_path += ".svg"
 
-    yosys_script_path = base_path + "verilog2mappingcircuit.ys"
+    yosys_script_path = base_path + "synth.ys"
     os.makedirs(os.path.dirname(yosys_script_path), exist_ok=True)
     with open(yosys_script_path, "w") as f:
         f.write(yosys_script_content)
@@ -169,12 +171,19 @@ show -notitle -stretch -format svg -prefix {circuit_bad_svg_path}
     log += log_temp
     print(log_temp)
 
-    # [读取svg并返回]
+    # [读取yosys`show`命令得到的svg]
 
     with open(circuit_bad_svg_path, "r") as f:
         circuit_bad_svg_content = f.read()
+
+
+
     return ServiceResponse(
-        circuit_bad_svg=circuit_bad_svg_content,
-        resources_report=resources_report,
         log=log,
+
+        resources_report=resources_report,
+        circuit_bad_svg=circuit_bad_svg_content,
+        circuit_good_svg="TODO",
+        sta_report="TODO",
+        simulation_wavejson="TODO"
     )
