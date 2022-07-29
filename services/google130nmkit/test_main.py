@@ -7,9 +7,9 @@ from .main import app
 client = TestClient(app)
 
 
-def test_read_main():
+def test_main():
     verilog_source = """
-module top(in, out);
+module inverter(in, out);
     input in;
     output out;
 
@@ -17,13 +17,11 @@ module top(in, out);
 endmodule
     """.strip()
 
-    top_module = "top"
-    library_type = "google_130nm"
+    top_module = "inverter"
 
     service_request = {
         "verilog_sources": [verilog_source],
-        "top_module": top_module,
-        "library_type": library_type,
+        "top_module": top_module
     }
     response_origin = client.post("/", json=service_request)
     print(f"[response.status_code] {response_origin.status_code}")
@@ -33,11 +31,14 @@ endmodule
         response = json.loads(response_origin.content)
 
         print(f"[log] {response['log']}")
-        print(f"[circuit_svg] {response['circuit_svg']}")
         print(f"[resources_report] {response['resources_report']}")
+        print(f"[circuit_bad_svg] {response['circuit_bad_svg']}")
+        print(f"[circuit_good_svg] {response['circuit_good_svg']}")
+        print(f"[sta_report] {response['sta_report']}")
+        print(f"[simulation_wavejson] {response['simulation_wavejson']}")
 
-        with open("./circuit.svg", "w") as f:
-            f.write(response["circuit_svg"])
+        with open("./output/circuit_bad.svg", "w") as f:
+            f.write(response["circuit_bad_svg"])
 
     elif response_origin.status_code == 400:
         print("[FAILED]")
