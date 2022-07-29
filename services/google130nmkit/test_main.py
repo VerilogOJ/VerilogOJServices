@@ -33,7 +33,6 @@ endmodule
         print(f"[log]\n{response['log']}")
         print(f"[resources_report]\n{response['resources_report']}")
         print(f"[circuit_svg]\n{response['circuit_svg']}")
-        print(f"[circuit_good_svg]\n{response['circuit_good_svg']}")
         print(f"[sta_report]\n{response['sta_report']}")
         print(f"[simulation_wavejson]\n{response['simulation_wavejson']}")
 
