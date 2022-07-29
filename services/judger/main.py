@@ -523,17 +523,26 @@ def judge_student_code(service_request: ServiceRequest):
     log += log_temp
     print(log_temp)
 
-    # [得到波形的WaveJSON并返回]
+    try:
+        # [得到波形的WaveJSON并返回]
 
-    wave_json_content = vcd_visualize(
-        vcd_reference_path=vcd_reference_path,
-        vcd_student_path=vcd_student_path,
-        signal_names=service_request.signal_names,
-    )
+        wave_json_content = vcd_visualize(
+            vcd_reference_path=vcd_reference_path,
+            vcd_student_path=vcd_student_path,
+            signal_names=service_request.signal_names,
+        )
 
-    log_temp = f"""波形图已生成\n"""
-    log += log_temp
-    print(log_temp)
+        log_temp = f"""波形图已生成\n"""
+        log += log_temp
+        print(log_temp)
+    except Exception as e:
+        raise HTTPException(
+            status_code=400,
+            detail=ServiceError(
+                error=f"波形图未成功生成\n",
+                log=log,
+            ).json(),
+        )
 
     log_temp = f"""判题结束\n"""
     log += log_temp
