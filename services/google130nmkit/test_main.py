@@ -30,14 +30,14 @@ endmodule
         print("[SUCCEDDED]")
         response = json.loads(response_origin.content)
 
-        print(f"[log] {response['log']}")
-        print(f"[resources_report] {response['resources_report']}")
-        print(f"[circuit_bad_svg] {response['circuit_bad_svg']}")
-        print(f"[circuit_good_svg] {response['circuit_good_svg']}")
-        print(f"[sta_report] {response['sta_report']}")
-        print(f"[simulation_wavejson] {response['simulation_wavejson']}")
+        print(f"[log]\n{response['log']}")
+        print(f"[resources_report]\n{response['resources_report']}")
+        print(f"[circuit_bad_svg]\n{response['circuit_bad_svg']}")
+        print(f"[circuit_good_svg]\n{response['circuit_good_svg']}")
+        print(f"[sta_report]\n{response['sta_report']}")
+        print(f"[simulation_wavejson]\n{response['simulation_wavejson']}")
 
-        with open("./output/circuit_bad.svg", "w") as f:
+        with open("./temp/circuit_bad.svg", "w") as f:
             f.write(response["circuit_bad_svg"])
 
     elif response_origin.status_code == 400:
