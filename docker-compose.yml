@@ -23,6 +23,8 @@ services:
     environment:
       - VIRTUAL_HOST=${services_namespace}.${service0_name}
       - VIRTUAL_PORT=80
+    depends_on:
+      - nginx-proxy
 
   service1:
     build:
@@ -36,6 +38,8 @@ services:
     environment:
       - VIRTUAL_HOST=${services_namespace}.${service1_name}
       - VIRTUAL_PORT=80
+    depends_on:
+      - nginx-proxy
 
   service2:
     build:
@@ -49,6 +53,8 @@ services:
     environment:
       - VIRTUAL_HOST=${services_namespace}.${service2_name}
       - VIRTUAL_PORT=80
+    depends_on:
+      - nginx-proxy
 
   service3:
     build:
@@ -62,6 +68,8 @@ services:
     environment:
       - VIRTUAL_HOST=${services_namespace}.${service3_name}
       - VIRTUAL_PORT=80
+    depends_on:
+      - nginx-proxy
 
   service4:
     build:
@@ -75,3 +83,5 @@ services:
     environment:
       - VIRTUAL_HOST=${services_namespace}.${service4_name}
       - VIRTUAL_PORT=80
+    depends_on:
+      - nginx-proxy
