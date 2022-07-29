@@ -335,7 +335,7 @@ class ServiceRequest(BaseModel):
     signal_names: List[str] = Body(
         title="需要进行波形显示的信号名称", description="指testbench中模块的信号名称"
     )
-    testbench: str = Body(title="测试样例的Verilog文件", description="顶层模块的名称必须为`testbench`。")
+    testbench: str = Body(title="测试样例的Verilog文件", description="顶层模块的名称必须为`testbench`")
     top_module: str = Body(title="顶层模块的名称，注意需要保证学生、答案的顶层模块和top_module相同")
 
 
@@ -419,7 +419,7 @@ def judge_student_code(service_request: ServiceRequest):
         f.write(service_request.code_reference)
 
     testbench_path = base_path + "testbench.v"
-    if service_request.code_reference == "":
+    if service_request.testbench == "":
         raise HTTPException(
             status_code=400,
             detail=ServiceError(error="no testbench provided", log=log).json(),
