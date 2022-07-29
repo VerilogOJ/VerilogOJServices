@@ -180,7 +180,7 @@ show -notitle -stretch -format svg -prefix {mapping_circuit_svg_path}
         or service_request.library_type == "yosys_cmos"
     ):
         with open(output_info_path, "r") as f:
-            resources_report = f.read().strip()
+            resources_report = f.read().replace("5. Printing statistics.", "").strip()
     else:
         resources_report = ""
     log_temp = f"""资源报告已提取\n"""

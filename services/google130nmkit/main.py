@@ -30,7 +30,7 @@ class ServiceResponse(BaseModel):
 
 class ServiceError(BaseModel):
     log: str = Body(title="过程日志")
-    
+
     error: str = Body(title="发生的错误信息")
 
 
@@ -67,7 +67,25 @@ def get_google130nm_analysis(service_request: ServiceRequest):
             status_code=404,
             detail=ServiceError(error="yosys not installed", log=log).json(),
         )
-    log_temp = f"""仿真软件已安装\n"""
+    log_temp = f"""yosys已安装\n"""
+    log += log_temp
+    print(log_temp)
+
+    if not program_exists("iverilog"):
+        raise HTTPException(
+            status_code=404,
+            detail=ServiceError(error="iverilog not installed", log=log).json(),
+        )
+    log_temp = f"""iverilog已安装\n"""
+    log += log_temp
+    print(log_temp)
+
+    if not program_exists("sta"):
+        raise HTTPException(
+            status_code=404,
+            detail=ServiceError(error="opensta not installed", log=log).json(),
+        )
+    log_temp = f"""opensta已安装\n"""
     log += log_temp
     print(log_temp)
 
@@ -97,48 +115,22 @@ def get_google130nm_analysis(service_request: ServiceRequest):
 
     # [生成yosys脚本]
 
-    mapping_circuit_svg_path = base_path + "mapping_circuit"
 
-    if service_request.library_type == "xilinx_fpga":
-        yosys_script_content = f"""
-read -sv {" ".join(verilog_sources_path)}
-synth_xilinx -top {service_request.top_module}
-show -notitle -stretch -format svg -prefix {mapping_circuit_svg_path}
-        """.strip()
-    elif service_request.library_type == "google_130nm":
-        output_info_path = base_path + "info.txt"
-        google_130nm_lib_path = "./lib/sky130_fd_sc_hd__tt_025C_1v80.lib"
-        yosys_script_content = f"""
+    output_info_path = base_path + "info.txt"
+    google_130nm_lib_path = "./lib/sky130_fd_sc_hd__tt_025C_1v80.lib"
+
+    circuit_bad_svg_path = base_path + "circuit_bad"
+    yosys_script_content = f"""
 read -sv {" ".join(verilog_sources_path)}
 synth -top {service_request.top_module}
 dfflibmap -liberty {google_130nm_lib_path}
 abc -liberty {google_130nm_lib_path}
 clean
 tee -a {output_info_path} stat
-show -notitle -stretch -format svg -prefix {mapping_circuit_svg_path}
-        """.strip()
-    elif service_request.library_type == "yosys_cmos":
-        output_info_path = base_path + "info.txt"
-        yosys_cmos_lib_path = "./lib/cmos_cells.lib"
-        yosys_script_content = f"""
-read -sv {" ".join(verilog_sources_path)}
-synth -top {service_request.top_module}
-dfflibmap -liberty {yosys_cmos_lib_path}
-abc -liberty {yosys_cmos_lib_path}
-clean
-tee -a {output_info_path} stat
-show -notitle -stretch -format svg -prefix {mapping_circuit_svg_path}
-        """.strip()
-    else:
-        raise HTTPException(
-            status_code=400,
-            detail=ServiceError(
-                error=f"no such library type {service_request.library_type}",
-                log=log,
-            ).json(),
-        )
+show -notitle -stretch -format svg -prefix {circuit_bad_svg_path}
+    """.strip()
+    circuit_bad_svg_path += ".svg"
 
-    mapping_circuit_svg_path += ".svg"
     yosys_script_path = base_path + "verilog2mappingcircuit.ys"
     os.makedirs(os.path.dirname(yosys_script_path), exist_ok=True)
     with open(yosys_script_path, "w") as f:
@@ -171,35 +163,18 @@ show -notitle -stretch -format svg -prefix {mapping_circuit_svg_path}
 
     # [从yosys的标准输出中正则提取到资源占用情况]
 
-    if service_request.library_type == "xilinx_fpga":
-
-        def extract_resources_report_from_log(log: str) -> str:
-            result = re.findall(
-                r"2\.26\. Printing statistics\.(.*)2.27", log, flags=re.S
-            )[0]
-            return result.strip()
-
-        resources_report = extract_resources_report_from_log(
-            completed_yosys.stdout.decode("utf-8")
-        )
-    elif (
-        service_request.library_type == "google_130nm"
-        or service_request.library_type == "yosys_cmos"
-    ):
-        with open(output_info_path, "r") as f:
-            resources_report = f.read().strip()
-    else:
-        resources_report = ""
+    with open(output_info_path, "r") as f:
+        resources_report = f.read().replace("5. Printing statistics.", "").strip()
     log_temp = f"""资源报告已提取\n"""
     log += log_temp
     print(log_temp)
 
     # [读取svg并返回]
 
-    with open(mapping_circuit_svg_path, "r") as f:
-        mapping_circuit_svg_content = f.read()
+    with open(circuit_bad_svg_path, "r") as f:
+        circuit_bad_svg_content = f.read()
     return ServiceResponse(
-        circuit_bad_svg=mapping_circuit_svg_content,
+        circuit_bad_svg=circuit_bad_svg_content,
         resources_report=resources_report,
         log=log,
     )
