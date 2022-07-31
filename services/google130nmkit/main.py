@@ -194,7 +194,7 @@ write_json {yosys_json_path}
         netlist_svg_path = base_path + "netlist.svg"
     completed_netlistsvg = subprocess.run(
         # https://github.com/nturley/netlistsvg#generating-input_json_file-with-yosys
-        ["netlistsvg", yosys_json_path, "-o", netlist_svg_path],  # TODO 添加lib
+        ["netlistsvg", yosys_json_path, "-o", netlist_svg_path],  # TODO 添加 skin lib
         capture_output=True,
     )
     log += completed_netlistsvg.stdout.decode("utf-8")
@@ -277,6 +277,10 @@ write_sdf {sdf_path}
 
     with open(sdf_path, "r") as f:
         sdf_content = f.read()
+
+    log_temp = f"""取得sdf内容\n"""
+    log += log_temp
+    print(log_temp)
 
     return ServiceResponse(
         log=log,
