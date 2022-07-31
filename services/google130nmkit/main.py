@@ -24,6 +24,7 @@ class ServiceResponse(BaseModel):
         title="元件库映射的netlistsvg电路图（yosys的write_json命令结合netlistsvg工具得到）"
     )
     sta_report: str = Body(title="时序分析报告（opensta分析得到）")
+    sdf_content: str = Body(title="标准延时文件内容")
 
     log: str = Body(title="过程日志")
 
@@ -193,7 +194,7 @@ write_json {yosys_json_path}
         netlist_svg_path = base_path + "netlist.svg"
     completed_netlistsvg = subprocess.run(
         # https://github.com/nturley/netlistsvg#generating-input_json_file-with-yosys
-        ["netlistsvg", yosys_json_path, "-o", netlist_svg_path], # TODO 添加lib
+        ["netlistsvg", yosys_json_path, "-o", netlist_svg_path],  # TODO 添加lib
         capture_output=True,
     )
     log += completed_netlistsvg.stdout.decode("utf-8")
@@ -272,10 +273,16 @@ write_sdf {sdf_path}
     log += log_temp
     print(log_temp)
 
+    # [拿到sdf文件内容]
+
+    with open(sdf_path, "r") as f:
+        sdf_content = f.read()
+
     return ServiceResponse(
         log=log,
         resources_report=resources_report,
         circuit_svg=circuit_svg_content,
         circuit_netlistsvg=circuit_netlistsvg_content,
         sta_report=sta_report,
+        sdf_content=sdf_content,
     )
