@@ -17,34 +17,11 @@ module inverter(in, out);
 endmodule
     """.strip()
 
-    testbench = """
-`timescale 1ns / 1ps
-
-module testbench();
-    reg in;
-    wire out;
-    inverter inverter(in, out);
-
-    initial begin
-        $dumpfile(`DUMP_FILE_NAME);
-        $dumpvars;
-    end
-
-    initial begin
-        in = 0; #1
-        in = 1; #1 
-        in = 0; #1 
-        $finish;
-    end
-endmodule
-    """.strip()
-
     top_module = "inverter"
 
     service_request = {
         "verilog_sources": [verilog_source],
-        "top_module": top_module,
-        "testbench": testbench,
+        "top_module": top_module
     }
     response_origin = client.post("/", json=service_request)
     print(f"[response.status_code] {response_origin.status_code}")
@@ -56,8 +33,8 @@ endmodule
         print(f"[log]\n{response['log']}")
         print(f"[resources_report]\n{response['resources_report']}")
         print(f"[circuit_svg]\n{response['circuit_svg']}")
+        print(f"[circuit_netlistsvg]\n{response['circuit_netlistsvg']}")
         print(f"[sta_report]\n{response['sta_report']}")
-        print(f"[simulation_wavejson]\n{response['simulation_wavejson']}")
 
         with open("./temp/circuit.svg", "w") as f:
             f.write(response["circuit_svg"])
