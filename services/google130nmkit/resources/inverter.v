@@ -1,4 +1,4 @@
-module top(in, out);
+module inverter(in, out);
     input in;
     output out;
 

@@ -7,8 +7,6 @@ from datetime import datetime
 from fastapi import FastAPI, Body, HTTPException
 from pydantic import BaseModel
 
-from .vcd_utilities import *
-
 # ------------------------
 
 
