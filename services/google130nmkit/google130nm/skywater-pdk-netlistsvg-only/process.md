@@ -6,4 +6,3 @@
 find . -name *.json ! -name definition.json -delete
 find . -name *.svg ! -name *.schematic.svg -delete
 ```
-
