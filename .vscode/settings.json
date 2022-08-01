@@ -1,4 +1,5 @@
 {
     // diable Python auto-import which just adds bugs to codes
-    "python.analysis.autoImportCompletions": false
+    "python.analysis.autoImportCompletions": false,
+    "svg.preview.background": "custom"
 }

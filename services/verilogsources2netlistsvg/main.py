@@ -83,7 +83,7 @@ def convert_verilog_sources_to_netlist_svg(service_request: ServiceRequest):
 
     netlist_json_path = base_path + "netlist.json"
     yosys_script_content = f"""
-read -sv {" ".join(verilog_sources_path)}
+read -sv {" ".join(verilog_sources_path)} 
 hierarchy -top {service_request.top_module}
 proc; opt; techmap; opt
 write_json {netlist_json_path}
