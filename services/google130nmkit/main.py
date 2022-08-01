@@ -16,13 +16,16 @@ class ServiceRequest(BaseModel):
 
 
 class ServiceResponse(BaseModel):
-    resources_report: str = Body(title="资源占用报告（yosys结合Google130nm元件库log中提取）")
-    circuit_svg: str = Body(title="元件库映射的电路图（yosys的show命令生成）")
-    circuit_netlistsvg: str = Body(
-        title="元件库映射的netlistsvg电路图（yosys的write_json命令结合netlistsvg工具的default_skin得到）"
+    resources_report: str = Body(title="资源占用报告（yosys的log中提取得到）")
+    yosys_show_svg: str = Body(title="元件库映射的电路图（yosys的show命令生成）")
+    netlistsvg_default: str = Body(
+        title="netlistsvg电路图（yosys的write_json命令结合netlistsvg工具的default_skin得到）"
+    )
+    netlistsvg_google130nm: str = Body(
+        title="netlistsvg电路图（yosys的write_json命令结合提前手动生成的google130nm_skin得到）"
     )
     sta_report: str = Body(title="时序分析报告（opensta分析得到）")
-    sdf_content: str = Body(title="标准延时文件内容")
+    sdf_content: str = Body(title="标准延时文件内容（opensta的write_sdf命令得到）")
 
     log: str = Body(title="过程日志")
 
@@ -104,10 +107,8 @@ def get_google130nm_analysis(service_request: ServiceRequest):
 
     # [保存用户上传的verilog源文件]
 
-    processing_id = uuid.uuid4().hex
-    base_path = (
-        f"./temp/{processing_id}/"  # https://docs.python.org/3/library/uuid.html
-    )
+    processing_id = uuid.uuid4().hex  # https://docs.python.org/3/library/uuid.html
+    base_path = f"./temp/{processing_id}/"
     verilog_sources_folder = "verilog_sources/"
     if service_request.verilog_sources.count == 0:
         raise HTTPException(
@@ -131,7 +132,7 @@ def get_google130nm_analysis(service_request: ServiceRequest):
     output_info_path = base_path + "info.txt"
     google_130nm_lib_path = "./lib/sky130_fd_sc_hd__tt_025C_1v80.lib"
 
-    circuit_svg_path = base_path + "circuit_bad"
+    yosys_show_svg_path = base_path + "circuit_bad"
     yosys_verilog_path = base_path + "module.v"
     yosys_json_path = base_path + "module.json"
     yosys_script_content = f"""
@@ -140,11 +141,11 @@ synth -top {service_request.top_module}
 read_liberty -lib {google_130nm_lib_path}
 abc -liberty {google_130nm_lib_path}
 tee -a {output_info_path} stat
-show -notitle -stretch -format svg -prefix {circuit_svg_path}
+show -notitle -stretch -format svg -prefix {yosys_show_svg_path}
 write_verilog {yosys_verilog_path}
 write_json {yosys_json_path}
     """.strip()
-    circuit_svg_path += ".svg"
+    yosys_show_svg_path += ".svg"
 
     yosys_script_path = base_path + "synth.ys"
     os.makedirs(os.path.dirname(yosys_script_path), exist_ok=True)
@@ -186,13 +187,15 @@ write_json {yosys_json_path}
 
     # [读取yosys`show`命令得到的svg]
 
-    with open(circuit_svg_path, "r") as f:
-        circuit_svg_content = f.read()
+    with open(yosys_show_svg_path, "r") as f:
+        yosys_show_svg = f.read()
 
-        netlist_svg_path = base_path + "netlist.svg"
+    # [netlistsvg]
+    netlistsvg_default_path = base_path + "netlist_default.svg"
+    netlistsvg_google130_path = base_path + "netlist_default.svg"
+    google130nm_skin_path = "./google130nm/google130nm_skin.svg"
     completed_netlistsvg = subprocess.run(
-        # https://github.com/nturley/netlistsvg#generating-input_json_file-with-yosys
-        ["netlistsvg", yosys_json_path, "-o", netlist_svg_path],  # TODO 添加 skin lib
+        [f"netlistsvg {yosys_json_path} -o {netlistsvg_default_path} && netlistsvg {yosys_json_path} -o {netlistsvg_default_path} --skin {google130nm_skin_path}"],
         capture_output=True,
     )
     log += completed_netlistsvg.stdout.decode("utf-8")
@@ -210,8 +213,11 @@ write_json {yosys_json_path}
 
     # [读取netlistsvg]
 
-    with open(netlist_svg_path, "r") as f:
-        circuit_netlistsvg_content = f.read()
+    with open(netlistsvg_default_path, "r") as f:
+        netlistsvg_default = f.read()
+    with open(netlistsvg_google130_path, "r") as f:
+        netlistsvg_google130nm = f.read()
+
     log_temp = f"""netlistsvg已提取\n"""
     log += log_temp
     print(log_temp)
@@ -283,8 +289,9 @@ write_sdf {sdf_path}
     return ServiceResponse(
         log=log,
         resources_report=resources_report,
-        circuit_svg=circuit_svg_content,
-        circuit_netlistsvg=circuit_netlistsvg_content,
+        yosys_show_svg=yosys_show_svg,
+        netlistsvg_default=netlistsvg_default,
+        netlistsvg_google130nm=netlistsvg_google130nm,
         sta_report=sta_report,
         sdf_content=sdf_content,
     )
