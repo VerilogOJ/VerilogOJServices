@@ -4,12 +4,6 @@ __pycache__/
 
 # Project
 temp/
-netlist.svg
-circuit.svg
 
 # My
 playgrounds/
-temp/
-
-# Google 130nm
-google130nm/

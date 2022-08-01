@@ -21,7 +21,7 @@ class ServiceResponse(BaseModel):
     resources_report: str = Body(title="资源占用报告（yosys结合Google130nm元件库log中提取）")
     circuit_svg: str = Body(title="元件库映射的电路图（yosys的show命令生成）")
     circuit_netlistsvg: str = Body(
-        title="元件库映射的netlistsvg电路图（yosys的write_json命令结合netlistsvg工具得到）"
+        title="元件库映射的netlistsvg电路图（yosys的write_json命令结合netlistsvg工具的default_skin得到）"
     )
     sta_report: str = Body(title="时序分析报告（opensta分析得到）")
     sdf_content: str = Body(title="标准延时文件内容")
