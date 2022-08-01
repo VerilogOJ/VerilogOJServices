@@ -361,8 +361,7 @@ class ServiceError(BaseModel):
 def judge_student_code(service_request: ServiceRequest):
     """上传学生的Verilog代码、答案、testbench并指定顶层模块，返回判题结果和信号波形图"""
 
-    log_temp = f"""开始处理 {datetime.now().strftime("%Y/%m/%d, %H:%M:%S")}
-请求: {service_request}\n"""
+    log_temp = f"""开始处理 {datetime.now().strftime("%Y/%m/%d, %H:%M:%S")}\n"""
     log = log_temp
     print(log_temp)
 

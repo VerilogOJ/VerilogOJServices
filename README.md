@@ -24,7 +24,7 @@ git pull && sudo docker compose up --detach --build
 
 ### 命令行测试
 
-默认服务测试
+#### 默认服务测试
 
 ```sh
 curl -X GET http://166.111.223.67:1234 -H "Host: verilogojservices.service0"
@@ -34,7 +34,7 @@ curl -X GET http://166.111.223.67:1234 -H "Host: verilogojservices.service0"
 {"service_id":0}%
 ```
 
-实际服务测试
+#### 实际服务测试
 
 ```sh
 curl -X POST http://166.111.223.67:1234 -H "Host: verilogojservices.verilogsources2netlistsvg"  -H "Content-Type: application/json" --data '{"verilog_sources": ["module top(in, out);\ninput in;\noutput out;\nassign out = ~in;\nendmodule"],"top_module": "top"}'
@@ -46,12 +46,12 @@ curl -X POST http://166.111.223.67:1234 -H "Host: verilogojservices.verilogsourc
 
 ### pytest测试
 
+> 该测试方法会测试服务器的部署情况。想要独立测试某个服务，请查看各服务的`README.md`。
+
 ```sh
 pytest tests # 执行`tests/`中的所有测试
 pytest tests -s # 执行`tests/`中的所有测试 并进行标准输出
 ```
-
-> 该测试方法会测试服务器的部署情况。想要独立测试某个服务，请查看各服务的`README.md`。
 
 ### 查看API文档
 
