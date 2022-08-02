@@ -47,7 +47,7 @@ endmodule
         print(f"[netlistsvg_default]\n{response['netlistsvg_default']}")
         print(f"[netlistsvg_google130nm]\n{response['netlistsvg_google130nm']}")
         print(f"[sta_report]\n{response['sta_report']}")
-        print(f"[sdf_content]\n{response['sdf_content']}")
+        # print(f"[sdf_content]\n{response['sdf_content']}")
 
         with open("./temp/yosys_show_svg.svg", "w") as f:
             f.write(response["yosys_show_svg"])
