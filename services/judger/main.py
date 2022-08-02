@@ -202,12 +202,19 @@ class VcdConverter:
             for i in range(0, local_time_max + 1):
                 if sig_inst["data"][cur_step_ptr][0] > i:
                     # maintain current value
-                    for i in range(0, width):
-                        waves[i] += "."
+                    for kkk in range(0, width):
+                        waves[kkk] += "."
                 else:
                     new_wave = self.parseValue(sig_inst["data"][cur_step_ptr][1])
                     if new_wave == cur_wave:
-                        waves[i] += "."
+                        print(f"DEBUG width {width}")
+                        print(f"DEBUG local_time_max {local_time_max}")
+                        print(f"DEBUG new_wave {new_wave}")
+                        print(f"DEBUG cur_wave {cur_wave}")
+                        print(f"DEBUG waves {waves}")
+                        print(f"DEBUG i {i}")
+                        for kkk in range(0, width):
+                            waves[kkk] += "."
                     else:
                         # do bitwise comparation
                         if cur_wave == "SOMETHING_NEVER_HAPPEN":
@@ -522,26 +529,26 @@ def judge_student_code(service_request: ServiceRequest):
     log += log_temp
     print(log_temp)
 
-    try:
-        # [得到波形的WaveJSON并返回]
+    # try:
+    # [得到波形的WaveJSON并返回]
 
-        wave_json_content = vcd_visualize(
-            vcd_reference_path=vcd_reference_path,
-            vcd_student_path=vcd_student_path,
-            signal_names=service_request.signal_names,
-        )
+    wave_json_content = vcd_visualize(
+        vcd_reference_path=vcd_reference_path,
+        vcd_student_path=vcd_student_path,
+        signal_names=service_request.signal_names,
+    )
 
-        log_temp = f"""波形图已生成\n"""
-        log += log_temp
-        print(log_temp)
-    except Exception as e:
-        raise HTTPException(
-            status_code=400,
-            detail=ServiceError(
-                error=f"波形图未成功生成\n{str(e)}",
-                log=log,
-            ).json(),
-        )
+    log_temp = f"""波形图已生成\n"""
+    log += log_temp
+    print(log_temp)
+    # except Exception as e:
+    #     raise HTTPException(
+    #         status_code=400,
+    #         detail=ServiceError(
+    #             error=f"波形图未成功生成\n{str(e)}",
+    #             log=log,
+    #         ).json(),
+    #     )
 
     log_temp = f"""判题结束\n"""
     log += log_temp
