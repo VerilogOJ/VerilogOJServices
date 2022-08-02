@@ -85,3 +85,18 @@ services:
       - VIRTUAL_PORT=80
     depends_on:
       - nginx-proxy
+
+  service5:
+    build:
+      context: ./services/${service5_name}
+      dockerfile: Dockerfile
+    image: ${services_namespace}_${service5_name}:v1
+    container_name: ${services_namespace}_${service5_name}
+    
+    expose:
+      - "80"
+    environment:
+      - VIRTUAL_HOST=${services_namespace}.${service5_name}
+      - VIRTUAL_PORT=80
+    depends_on:
+      - nginx-proxy
