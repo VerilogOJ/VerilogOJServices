@@ -4,14 +4,25 @@ import json
 
 def test_single_file():
     verilog_source = """
-module inverter(
-    input in,
-    output out
+module decoder(
+    input [2:0] x,
+    output reg [7:0] y
 );
-    assign out = ~in;
+    always @ (*) begin
+        case (x)
+        3'b000: y=8'b0000_0001;
+        3'b001: y=8'b0000_0010;
+        3'b010: y=8'b0000_0100;
+        3'b011: y=8'b0000_1000;
+        3'b100: y=8'b0001_0000;
+        3'b101: y=8'b0010_0000;
+        3'b110: y=8'b0100_0000;
+        3'b111: y=8'b1000_0000;
+        endcase
+    end
 endmodule
     """.strip()
-    top_module = "inverter"
+    top_module = "decoder"
     request_data = {"verilog_sources": [verilog_source], "top_module": top_module}
     url = "http://166.111.223.67:1234"
 
@@ -54,6 +65,6 @@ endmodule
         print(f"[error] {response['error']}")
     else:
         print("[FAILED]")
-        print(json.loads(response_origin.content))
+        print(response_origin.content)
 
     assert response_origin.status_code == 200

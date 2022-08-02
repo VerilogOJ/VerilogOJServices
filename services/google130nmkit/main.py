@@ -25,7 +25,7 @@ class ServiceResponse(BaseModel):
         title="netlistsvg电路图（yosys的write_json命令结合提前手动生成的google130nm_skin得到）"
     )
     sta_report: str = Body(title="时序分析报告（opensta分析得到）")
-    sdf_content: str = Body(title="标准延时文件内容（opensta的write_sdf命令得到）")
+    # sdf_content: str = Body(title="标准延时文件内容（opensta的write_sdf命令得到）")
 
     log: str = Body(title="过程日志")
 
@@ -238,7 +238,7 @@ write_json {yosys_json_path}
 
     # [生成OpenSTA脚本]
 
-    sdf_path = base_path + "sta.sdf"
+    # sdf_path = base_path + "sta.sdf"
     google_130nm_lib_path = "./lib/sky130_fd_sc_hd__tt_025C_1v80.lib"
     opensta_script_content = f"""
 read_liberty {google_130nm_lib_path}
@@ -250,8 +250,8 @@ set_input_delay -clock clk 0 {{*}}
 set_output_delay -clock clk 0 {{*}}
 
 report_checks
-write_sdf {sdf_path}
     """.strip()
+# write_sdf {sdf_path}
 
     opensta_script_path = base_path + "sta.txt"
     os.makedirs(os.path.dirname(opensta_script_path), exist_ok=True)
@@ -293,12 +293,12 @@ write_sdf {sdf_path}
 
     # [拿到sdf文件内容]
 
-    with open(sdf_path, "r") as f:
-        sdf_content = f.read()
+    # with open(sdf_path, "r") as f:
+    #     sdf_content = f.read()
 
-    log_temp = f"""取得sdf内容\n"""
-    log += log_temp
-    print(log_temp)
+    # log_temp = f"""取得sdf内容\n"""
+    # log += log_temp
+    # print(log_temp)
 
     return ServiceResponse(
         log=log,
@@ -307,5 +307,5 @@ write_sdf {sdf_path}
         netlistsvg_default=netlistsvg_default,
         netlistsvg_google130nm=netlistsvg_google130nm,
         sta_report=sta_report,
-        sdf_content=sdf_content,
+        # sdf_content=sdf_content,
     )
