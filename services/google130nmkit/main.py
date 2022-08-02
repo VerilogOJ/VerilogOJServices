@@ -78,15 +78,6 @@ def get_google130nm_analysis(service_request: ServiceRequest):
     log += log_temp
     print(log_temp)
 
-    if not program_exists("iverilog"):
-        raise HTTPException(
-            status_code=404,
-            detail=ServiceError(error="iverilog not installed", log=log).json(),
-        )
-    log_temp = f"""iverilog已安装\n"""
-    log += log_temp
-    print(log_temp)
-
     if not program_exists("sta"):
         raise HTTPException(
             status_code=404,
