@@ -187,8 +187,8 @@ write_json {yosys_json_path}
     google130nm_skin_path = "./google130nm/google130nm_skin.svg"
     completed_netlistsvg = subprocess.run(
         [
-            f"netlistsvg {yosys_json_path}",
-            f" -o {netlistsvg_default_path} && netlistsvg {yosys_json_path} -o {netlistsvg_default_path} --skin {google130nm_skin_path}",
+            "netlistsvg",
+            f" {yosys_json_path} -o {netlistsvg_default_path} && netlistsvg {yosys_json_path} -o {netlistsvg_default_path} --skin {google130nm_skin_path}",
         ],
         capture_output=True,
     )
