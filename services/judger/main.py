@@ -199,11 +199,11 @@ class VcdConverter:
             cur_wave = "SOMETHING_NEVER_HAPPEN"
 
             # TODO: Avoid multiple transitions at same timestep
-            for i in range(0, local_time_max + 1):
-                if sig_inst["data"][cur_step_ptr][0] > i:
+            for time_i in range(0, local_time_max + 1):
+                if sig_inst["data"][cur_step_ptr][0] > time_i:
                     # maintain current value
-                    for kkk in range(0, width):
-                        waves[kkk] += "."
+                    for i in range(0, width):
+                        waves[i] += "."
                 else:
                     new_wave = self.parseValue(sig_inst["data"][cur_step_ptr][1])
                     if new_wave == cur_wave:
@@ -213,8 +213,8 @@ class VcdConverter:
                         print(f"DEBUG cur_wave {cur_wave}")
                         print(f"DEBUG waves {waves}")
                         print(f"DEBUG i {i}")
-                        for kkk in range(0, width):
-                            waves[kkk] += "."
+                        for i in range(0, width):
+                            waves[i] += "."
                     else:
                         # do bitwise comparation
                         if cur_wave == "SOMETHING_NEVER_HAPPEN":
