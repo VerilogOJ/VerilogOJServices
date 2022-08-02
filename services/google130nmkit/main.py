@@ -205,12 +205,19 @@ write_json {yosys_json_path}
         ],
         capture_output=True,
     )
-    log += completed_netlistsvg_default.stdout.decode("utf-8") + "\n" + completed_netlistsvg_google130nm.stdout.decode("utf-8")
-    if completed_netlistsvg_default.returncode != 0 or completed_netlistsvg_google130nm.returncode != 0:
+    log += (
+        completed_netlistsvg_default.stdout.decode("utf-8")
+        + "\n"
+        + completed_netlistsvg_google130nm.stdout.decode("utf-8")
+    )
+    if (
+        completed_netlistsvg_default.returncode != 0
+        or completed_netlistsvg_google130nm.returncode != 0
+    ):
         raise HTTPException(
             status_code=400,
             detail=ServiceError(
-                error=f"run netlistsvg failed {completed_netlistsvg_default.stderr.decode('utf-8')+'\n'+completed_netlistsvg_google130nm.stderr.decode('utf-8')}",
+                error=f"run netlistsvg failed {completed_netlistsvg_default.stderr.decode('utf-8')}\n{completed_netlistsvg_google130nm.stderr.decode('utf-8')}",
                 log=log,
             ).json(),
         )
