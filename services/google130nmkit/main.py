@@ -186,7 +186,10 @@ write_json {yosys_json_path}
     netlistsvg_google130_path = base_path + "netlist_default.svg"
     google130nm_skin_path = "./google130nm/google130nm_skin.svg"
     completed_netlistsvg = subprocess.run(
-        [f"netlistsvg {yosys_json_path} -o {netlistsvg_default_path} && netlistsvg {yosys_json_path} -o {netlistsvg_default_path} --skin {google130nm_skin_path}"],
+        [
+            f"netlistsvg {yosys_json_path}",
+            f" -o {netlistsvg_default_path} && netlistsvg {yosys_json_path} -o {netlistsvg_default_path} --skin {google130nm_skin_path}",
+        ],
         capture_output=True,
     )
     log += completed_netlistsvg.stdout.decode("utf-8")
