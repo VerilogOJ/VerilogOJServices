@@ -185,19 +185,32 @@ write_json {yosys_json_path}
     netlistsvg_default_path = base_path + "netlist_default.svg"
     netlistsvg_google130_path = base_path + "netlist_default.svg"
     google130nm_skin_path = "./google130nm/google130nm_skin.svg"
-    completed_netlistsvg = subprocess.run(
+    completed_netlistsvg_default = subprocess.run(
         [
             "netlistsvg",
-            f" {yosys_json_path} -o {netlistsvg_default_path} && netlistsvg {yosys_json_path} -o {netlistsvg_default_path} --skin {google130nm_skin_path}",
+            f"{yosys_json_path}",
+            "-o",
+            f"{netlistsvg_default_path}",
         ],
         capture_output=True,
     )
-    log += completed_netlistsvg.stdout.decode("utf-8")
-    if completed_netlistsvg.returncode != 0:
+    completed_netlistsvg_google130nm = subprocess.run(
+        [
+            "netlistsvg",
+            f"{yosys_json_path}",
+            "-o",
+            f"{netlistsvg_google130_path}",
+            "--skin",
+            f"{google130nm_skin_path}",
+        ],
+        capture_output=True,
+    )
+    log += completed_netlistsvg_default.stdout.decode("utf-8") + "\n" + completed_netlistsvg_google130nm.stdout.decode("utf-8")
+    if completed_netlistsvg_default.returncode != 0 or completed_netlistsvg_google130nm.returncode != 0:
         raise HTTPException(
             status_code=400,
             detail=ServiceError(
-                error=f"run netlistsvg failed {completed_netlistsvg.stderr.decode('utf-8')}",
+                error=f"run netlistsvg failed {completed_netlistsvg_default.stderr.decode('utf-8')+'\n'+completed_netlistsvg_google130nm.stderr.decode('utf-8')}",
                 log=log,
             ).json(),
         )
