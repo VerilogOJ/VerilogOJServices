@@ -124,9 +124,9 @@ class VcdComparator:
             # compare all signals
             for i in range(0, len(self.signals_ref)):
                 self.compare_signals(self.signals_ref[i], self.signals_ut[i])
-            return (True, "No error")
+            return (True, "无误\n")
         except VcdSignalComparationError as e:
-            return (False, "{}".format(e))
+            return (False, "有误\n{}\n".format(e))
 
 
 # [vcd_main.py]
@@ -538,7 +538,7 @@ def judge_student_code(service_request: ServiceRequest):
         raise HTTPException(
             status_code=400,
             detail=ServiceError(
-                error=f"波形图未成功生成\n",
+                error=f"波形图未成功生成\n{str(e)}",
                 log=log,
             ).json(),
         )
